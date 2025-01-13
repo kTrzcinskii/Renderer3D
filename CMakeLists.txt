@@ -21,9 +21,10 @@ add_subdirectory(vendor/glad)
 add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glm)
 add_subdirectory(vendor/stb_image)
+add_subdirectory(vendor/imgui)
 
 # Link libraries
-target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp)
+target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp imgui)
 
 # Copy assets to build directory
 add_custom_target(copy_assets
