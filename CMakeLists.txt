@@ -17,7 +17,9 @@ add_executable(Renderer3D
         src/camera.cpp
         src/camera.h
         src/shader.cpp
-        src/shader.h)
+        src/shader.h
+        src/texture.cpp
+        src/texture.h)
 
 # Add 3rd party libraries
 add_subdirectory(vendor/assimp)
