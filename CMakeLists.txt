@@ -13,7 +13,9 @@ set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 
 # Add source files
 add_executable(Renderer3D
-        src/main.cpp)
+        src/main.cpp
+        src/camera.cpp
+        src/camera.h)
 
 # Add 3rd party libraries
 add_subdirectory(vendor/assimp)
