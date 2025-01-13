@@ -24,9 +24,10 @@ add_subdirectory(vendor/glfw)
 add_subdirectory(vendor/glm)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/imgui)
+add_subdirectory(vendor/spdlog)
 
 # Link libraries
-target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp imgui)
+target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp imgui spdlog::spdlog_header_only) # FIXME: for some reason spdlog::spdlog is not linking correctly
 
 # Copy assets to build directory
 add_custom_target(copy_assets
