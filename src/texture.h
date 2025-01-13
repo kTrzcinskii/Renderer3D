@@ -19,7 +19,7 @@ namespace Renderer3D {
         SPECULAR
     };
 
-    std::string_view TextureTypeToString(TextureType type);
+    std::string_view textureTypeToString(TextureType type);
     TextureType textureTypeFromAssimp(aiTextureType type);
 
     class Texture {

@@ -9,7 +9,7 @@
 #include "texture.h"
 
 namespace Renderer3D {
-    std::string_view TextureTypeToString(const TextureType type)
+    std::string_view textureTypeToString(const TextureType type)
     {
         switch (type)
         {
