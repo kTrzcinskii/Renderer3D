@@ -2,15 +2,27 @@
 // Created by Kacper Trzciński on 13.01.2025.
 //
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
-#include <iostream>
+
+#include "window.h"
 
 int main()
 {
-    std::cout << "starting\n";
-    spdlog::set_level(spdlog::level::info);
-    spdlog::info("Hello World!");
-    std::cout << "Made it past spdlog\n" << std::endl;
+    const auto window = Renderer3D::Window();
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    {
+        spdlog::error("Failed to initialize GLAD");
+        return -1;
+    }
+
+    while (!window.ShouldClose())
+    {
+        window.SwapBuffers();
+        window.PollEvents();
+    }
 
     return 0;
 }

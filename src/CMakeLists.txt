@@ -11,7 +11,8 @@ add_executable(Renderer3D
         mesh.h
         model.cpp
         model.h
-
+        window.cpp
+        window.h
 )
 
 # Link libraries
