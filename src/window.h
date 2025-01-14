@@ -16,6 +16,12 @@ namespace Renderer3D {
         [[nodiscard]] bool ShouldClose() const;
         void SwapBuffers() const;
         void PollEvents() const;
+        void LockCursor() const;
+        void UnlockCursor() const;
+        void SetUserPointer(void* userPointer) const;
+        void SetWindowResizeCallback(GLFWframebuffersizefun callback) const;
+        [[nodiscard]] bool IsKeyPressed(int key) const;
+        void Close() const;
     private:
         std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> _glfwWindow;
         static constexpr size_t INITIAL_WIDTH = 1600;

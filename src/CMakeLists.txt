@@ -13,6 +13,8 @@ add_executable(Renderer3D
         model.h
         window.cpp
         window.h
+        renderer.cpp
+        renderer.h
 )
 
 # Link libraries

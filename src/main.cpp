@@ -2,17 +2,11 @@
 // Created by Kacper Trzciński on 13.01.2025.
 //
 
-#include "window.h"
+#include "renderer.h"
 
 int main()
 {
-    const auto window = Renderer3D::Window();
-
-    while (!window.ShouldClose())
-    {
-        window.SwapBuffers();
-        window.PollEvents();
-    }
-
+    auto rendered = Renderer3D::Renderer();
+    rendered.Render();
     return 0;
 }

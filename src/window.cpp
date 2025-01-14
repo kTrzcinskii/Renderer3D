@@ -36,6 +36,7 @@ namespace Renderer3D {
         }
 
         glfwMakeContextCurrent(_glfwWindow.get());
+        glfwSetWindowUserPointer(_glfwWindow.get(), nullptr);
 
         if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
         {
@@ -58,5 +59,35 @@ namespace Renderer3D {
     void Window::PollEvents() const // NOLINT(*-convert-member-functions-to-static)
     {
         glfwPollEvents();
+    }
+
+    void Window::LockCursor() const
+    {
+        glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    void Window::UnlockCursor() const
+    {
+        glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    void Window::SetUserPointer(void* userPointer) const
+    {
+        glfwSetWindowUserPointer(_glfwWindow.get(), userPointer);
+    }
+
+    void Window::SetWindowResizeCallback(const GLFWframebuffersizefun callback) const
+    {
+        glfwSetFramebufferSizeCallback(_glfwWindow.get(), callback);
+    }
+
+    bool Window::IsKeyPressed(const int key) const
+    {
+        return glfwGetKey(_glfwWindow.get(), key) == GLFW_TRUE;
+    }
+
+    void Window::Close() const
+    {
+        glfwSetWindowShouldClose(_glfwWindow.get(), true);
     }
 } // Renderer3D
