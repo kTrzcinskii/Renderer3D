@@ -3,6 +3,8 @@
 //
 
 #include <spdlog/spdlog.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "window.h"
 
@@ -34,6 +36,12 @@ namespace Renderer3D {
         }
 
         glfwMakeContextCurrent(_glfwWindow.get());
+
+        if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+        {
+            spdlog::error("Failed to initialize GLAD");
+        }
+
     }
 
     bool Window::ShouldClose() const

@@ -25,12 +25,11 @@ add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/spdlog)
 
-# FIXME:
 # Copy assets to build directory
-#add_custom_target(copy_assets
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
-#)
-#add_dependencies(Renderer3D copy_assets)
+add_custom_target(copy_assets
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+)
+add_dependencies(Renderer3D copy_assets)
 
 # Disable warning for unknown pragma - MSVC specific code
 target_compile_options(assimp PRIVATE -Wno-unknown-pragmas)
