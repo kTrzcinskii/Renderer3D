@@ -23,7 +23,7 @@ namespace Renderer3D {
     public:
         Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::unordered_map<TextureType, std::vector<Texture>> textures);
         ~Mesh();
-        void Draw(const Shader& shader);
+        void Draw(const Shader& shader) const;
         // TODO: add support for DrawInstanced (?)
     private:
         std::vector<Vertex> _vertices;

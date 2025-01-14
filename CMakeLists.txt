@@ -21,7 +21,9 @@ add_executable(Renderer3D
         src/texture.cpp
         src/texture.h
         src/mesh.cpp
-        src/mesh.h)
+        src/mesh.h
+        src/model.cpp
+        src/model.h)
 
 # Add 3rd party libraries
 add_subdirectory(vendor/assimp)

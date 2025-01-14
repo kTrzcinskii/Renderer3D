@@ -61,7 +61,7 @@ namespace Renderer3D {
         }
     }
 
-    void Mesh::Draw(const Shader& shader)
+    void Mesh::Draw(const Shader& shader) const
     {
         // Setup textures
         shader.Activate();
