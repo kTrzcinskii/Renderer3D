@@ -1,0 +1,18 @@
+# Add source files
+add_executable(Renderer3D
+        main.cpp
+        camera.cpp
+        camera.h
+        shader.cpp
+        shader.h
+        texture.cpp
+        texture.h
+        mesh.cpp
+        mesh.h
+        model.cpp
+        model.h
+
+)
+
+# Link libraries
+target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp spdlog::spdlog)

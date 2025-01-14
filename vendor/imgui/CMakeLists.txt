@@ -1,4 +1,4 @@
-add_library(imgui
+add_library(imgui STATIC
         imgui/imgui.cpp
         imgui/imgui_demo.cpp
         imgui/imgui_draw.cpp
@@ -11,6 +11,7 @@ add_library(imgui
 target_include_directories(imgui PUBLIC
         ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui
         ${CMAKE_SOURCE_DIR}/vendor/imgui/imgui/backends
+        ${CMAKE_SOURCE_DIR}/vendor/glfw/include
 )
 
 # ImGui needs these libraries
