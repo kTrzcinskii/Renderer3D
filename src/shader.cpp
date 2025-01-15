@@ -2,6 +2,7 @@
 // Created by Kacper Trzciński on 13.01.2025.
 //
 
+#include <glad/glad.h>
 #include <spdlog/spdlog.h>
 #include <fstream>
 #include <sstream>
@@ -14,15 +15,17 @@ namespace Renderer3D {
     {
         // Vertex shader
         const auto vertexShaderSource = LoadShaderSource(vertexPath);
+        const auto vertexShaderSourceCString = vertexShaderSource.c_str();
         const auto vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShaderID, 1, reinterpret_cast<const GLchar* const*>(vertexShaderSource.c_str()), nullptr);
+        glShaderSource(vertexShaderID, 1, &vertexShaderSourceCString, nullptr);
         glCompileShader(vertexShaderID);
         CheckShaderCompilationResult(vertexShaderID);
 
         // Fragment shader
         const auto fragmentShaderSource = LoadShaderSource(fragmentPath);
+        const auto fragmentShaderSourceCString = fragmentShaderSource.c_str();
         const auto fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShaderID, 1, reinterpret_cast<const GLchar* const*>(fragmentShaderSource.c_str()), nullptr);
+        glShaderSource(fragmentShaderID, 1, &fragmentShaderSourceCString, nullptr);
         glCompileShader(fragmentShaderID);
         CheckShaderCompilationResult(fragmentShaderID);
 
