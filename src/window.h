@@ -20,6 +20,7 @@ namespace Renderer3D {
         void UnlockCursor() const;
         void SetUserPointer(void* userPointer) const;
         void SetWindowResizeCallback(GLFWframebuffersizefun callback) const;
+        void SetCursorPositionCallback(GLFWcursorposfun callback) const;
         [[nodiscard]] bool IsKeyPressed(int key) const;
         void Close() const;
     private:
