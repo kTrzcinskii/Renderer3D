@@ -25,6 +25,7 @@ namespace Renderer3D {
     class Texture {
     public:
         Texture(const fs::path& texturePath, TextureType type);
+        Texture(Texture&& texture) noexcept;
         ~Texture();
         [[nodiscard]] GLuint GetId() const;
         [[nodiscard]] TextureType GetType() const;
@@ -33,6 +34,7 @@ namespace Renderer3D {
         GLuint _textureID;
         TextureType _type;
         fs::path _texturePath;
+        bool _isMoved = false;
     };
 
 } // Renderer3D

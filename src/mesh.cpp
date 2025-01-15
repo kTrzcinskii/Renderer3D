@@ -6,9 +6,11 @@
 
 #include "mesh.h"
 
+#include "spdlog/spdlog.h"
+
 namespace Renderer3D {
     Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-        std::unordered_map<TextureType, std::vector<Texture>> textures)
+        std::unordered_map<TextureType, std::vector<std::shared_ptr<Texture>>> textures)
     {
         _vertices = std::move(vertices);
         _indices = std::move(indices);
@@ -45,8 +47,23 @@ namespace Renderer3D {
         glBindVertexArray(0);
     }
 
+    Mesh::Mesh(Mesh&& mesh) noexcept
+    {
+        _vaoID = mesh._vaoID;
+        _vboID = mesh._vboID;
+        _eboID = mesh._eboID;
+        _vertices = std::move(mesh._vertices);
+        _indices = std::move(mesh._indices);
+        _textures = std::move(mesh._textures);
+        mesh._isMoved = true;
+    }
+
     Mesh::~Mesh()
     {
+        if (_isMoved)
+        {
+            return;
+        }
         if (_vaoID != 0)
         {
             glDeleteVertexArrays(1, &_vaoID);
@@ -75,7 +92,7 @@ namespace Renderer3D {
                 // We must use this struct name for our uniform inside shaders
                 auto name = std::format("material.{}{}", typeName, i);
                 shader.SetUniform(name, static_cast<int>(textureUnit));
-                glBindTexture(GL_TEXTURE_2D, textures[i].GetId());
+                glBindTexture(GL_TEXTURE_2D, textures[i].get()->GetId());
                 textureUnit++;
             }
         }

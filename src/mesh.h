@@ -21,17 +21,19 @@ namespace Renderer3D {
 
     class Mesh {
     public:
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::unordered_map<TextureType, std::vector<Texture>> textures);
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::unordered_map<TextureType, std::vector<std::shared_ptr<Texture>>> textures);
+        Mesh(Mesh&& mesh) noexcept;
         ~Mesh();
         void Draw(const Shader& shader) const;
         // TODO: add support for DrawInstanced (?)
     private:
         std::vector<Vertex> _vertices;
         std::vector<unsigned int> _indices;
-        std::unordered_map<TextureType, std::vector<Texture>> _textures;
+        std::unordered_map<TextureType, std::vector<std::shared_ptr<Texture>>> _textures;
         GLuint _vaoID;
         GLuint _vboID;
         GLuint _eboID;
+        bool _isMoved = false;
     };
 
 } // Renderer3D

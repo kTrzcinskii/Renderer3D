@@ -88,8 +88,20 @@ namespace Renderer3D {
         stbi_image_free(data);
     }
 
+    Texture::Texture(Texture&& texture) noexcept
+    {
+        texture._isMoved = true;
+        _textureID = texture._textureID;
+        _texturePath = texture._texturePath;
+        _type = texture._type;
+    }
+
     Texture::~Texture()
     {
+        if (_isMoved)
+        {
+            return;
+        }
         if (_textureID != 0)
         {
             glDeleteTextures(1, &_textureID);
