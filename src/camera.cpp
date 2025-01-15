@@ -2,6 +2,8 @@
 // Created by Kacper Trzciński on 13.01.2025.
 //
 
+#include <spdlog/spdlog.h>
+
 #include "camera.h"
 
 namespace Renderer3D {
@@ -97,6 +99,8 @@ namespace Renderer3D {
             }
         }
 
+        spdlog::info("Rotating camera: pitch - {}, yaw - {}", _pitch, _yaw);
+
         UpdateCameraVectors();
     }
 
@@ -128,5 +132,6 @@ namespace Renderer3D {
         _front = glm::normalize(front);
         _right = glm::normalize(glm::cross(_front, _worldUp));
         _up = glm::normalize(glm::cross(_right, _front));
+        spdlog::info("Updating camera vectors");
     }
 } // Renderer3D
