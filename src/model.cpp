@@ -35,7 +35,7 @@ namespace Renderer3D {
         {
             const auto mesh = scene->mMeshes[node->mMeshes[i]];
             auto processedMesh = ProcessMesh(mesh, scene);
-            _meshes.push_back(processedMesh);
+            _meshes.emplace_back(std::move(processedMesh));
         }
         for (size_t i = 0; i < node->mNumChildren; i++)
         {
@@ -48,7 +48,7 @@ namespace Renderer3D {
     {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        std::unordered_map<TextureType, std::vector<Texture>> textures;
+        std::unordered_map<TextureType, std::vector<std::shared_ptr<Texture>>> textures;
 
         // Vertices
         for (size_t i = 0; i < mesh->mNumVertices; i++)
@@ -81,7 +81,7 @@ namespace Renderer3D {
                 vertex.TexCoords = glm::vec2(0.0f, 0.0f);
             }
 
-            vertices.push_back(vertex);
+            vertices.emplace_back(vertex);
         }
 
         // Indices
@@ -90,7 +90,7 @@ namespace Renderer3D {
             const auto face = mesh->mFaces[i];
             for (size_t j = 0; j < face.mNumIndices; j++)
             {
-                indices.push_back(face.mIndices[j]);
+                indices.emplace_back(face.mIndices[j]);
             }
         }
 
@@ -104,9 +104,9 @@ namespace Renderer3D {
         return {vertices, indices, textures};
     }
 
-    std::vector<Texture> Model::LoadMaterialTextures(const aiMaterial* material, const aiTextureType assimpType)
+    std::vector<std::shared_ptr<Texture>> Model::LoadMaterialTextures(const aiMaterial* material, const aiTextureType assimpType)
     {
-        std::vector<Texture> textures;
+        std::vector<std::shared_ptr<Texture>> textures;
         for (size_t i = 0; i < material->GetTextureCount(assimpType); i++)
         {
             aiString str;
@@ -122,8 +122,8 @@ namespace Renderer3D {
             }
             else
             {
-                const auto type = textureTypeFromAssimp(assimpType);;
-                const auto texture = Texture(path, type);
+                const auto type = textureTypeFromAssimp(assimpType);
+                auto texture = std::make_shared<Texture>(Texture(path, type));
                 textures.push_back(texture);
                 _loadedTextures.insert(std::pair(path, texture));
             }

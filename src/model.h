@@ -23,10 +23,10 @@ namespace Renderer3D {
     private:
         std::vector<Mesh> _meshes;
         fs::path _directory;
-        std::unordered_map<fs::path, Texture> _loadedTextures;
+        std::unordered_map<fs::path, std::shared_ptr<Texture>> _loadedTextures;
         void ProcessNode(const aiNode *node, const aiScene *scene);
         Mesh ProcessMesh(const aiMesh *mesh, const aiScene *scene);
-        std::vector<Texture> LoadMaterialTextures(const aiMaterial *material, aiTextureType assimpType);
+        std::vector<std::shared_ptr<Texture>> LoadMaterialTextures(const aiMaterial *material, aiTextureType assimpType);
     };
 
 } // Renderer3D
