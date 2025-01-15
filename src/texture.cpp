@@ -35,10 +35,6 @@ namespace Renderer3D {
         }
     }
 
-    // This function requires stb_image option `stbi_set_flip_vertically_on_load`
-    // to be set to true.
-    // It should be done globally, as doing it in every texture
-    // could potentially have negative impact on performance
     Texture::Texture(const fs::path& texturePath, const TextureType type)
     {
         _type = type;

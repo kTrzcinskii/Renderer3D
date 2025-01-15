@@ -28,7 +28,12 @@ namespace Renderer3D {
         // TODO: remove, only for testing
         _window.LockCursor();
         const Shader modelShader("../assets/shaders/model_without_light_vertex.glsl", "../assets/shaders/model_without_light_fragment.glsl");
-        const Model model("../assets/models/backpack/backpack.obj");
+
+        const Model backpack("../assets/models/backpack/backpack.obj", true);
+        const Model ufo("../assets/models/ufo/Low_poly_UFO.obj");
+        const Model cottage("../assets/models/cottage/Cottage_FREE.obj");
+
+        glEnable(GL_DEPTH_TEST);
 
         while (!_window.ShouldClose())
         {
@@ -41,12 +46,15 @@ namespace Renderer3D {
             ProcessInput();
 
             // Render
-            glClearColor(0.2, 0.5f, 0.3f, 0.4f);
+            glClearColor(0.2, 0.2f, 0.4f, 0.2f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Camera matrices
             const auto projection = _freeMovingCamera.GetProjectionMatrix();
             const auto view = _freeMovingCamera.GetViewMatrix();
+            modelShader.Activate();
+            modelShader.SetUniform("view", view);
+            modelShader.SetUniform("projection", projection);
 
             // Render backpack
             auto backpackModelMatrix = glm::mat4(1.0f);
@@ -54,9 +62,22 @@ namespace Renderer3D {
             backpackModelMatrix = glm::scale(backpackModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
             modelShader.Activate();
             modelShader.SetUniform("model", backpackModelMatrix);
-            modelShader.SetUniform("view", view);
-            modelShader.SetUniform("projection", projection);
-            model.Draw(modelShader);
+            backpack.Draw(modelShader);
+
+            // Render ufo
+            auto ufoModelMatrix = glm::mat4(1.0f);
+            ufoModelMatrix = glm::translate(ufoModelMatrix, glm::vec3(-5.0f, 1.0f, -5.0f));
+            ufoModelMatrix = glm::scale(ufoModelMatrix, glm::vec3(0.09f, 0.09f, 0.09f));
+            modelShader.Activate();
+            modelShader.SetUniform("model", ufoModelMatrix);
+            ufo.Draw(modelShader);
+
+            // Render cottage
+            auto cottageModelMatrix = glm::mat4(1.0f);
+            cottageModelMatrix = glm::translate(cottageModelMatrix, glm::vec3(14.0f, -2.0f, 2.0f));
+            modelShader.Activate();
+            modelShader.SetUniform("model", cottageModelMatrix);
+            cottage.Draw(modelShader);
 
             // Double buffer and events
             _window.SwapBuffers();

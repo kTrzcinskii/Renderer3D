@@ -18,7 +18,7 @@ namespace Renderer3D {
 
     class Model {
     public:
-        explicit Model(const fs::path& path);
+        explicit Model(const fs::path& path, bool flipTextures = false);
         void Draw(const Shader& shader) const;
     private:
         std::vector<Mesh> _meshes;

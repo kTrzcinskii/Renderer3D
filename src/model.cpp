@@ -4,12 +4,14 @@
 
 #include <assimp/postprocess.h>
 #include <spdlog/spdlog.h>
+#include <stb_image/stb_image.h>
 
 #include "model.h"
 
 namespace Renderer3D {
-    Model::Model(const fs::path& path)
+    Model::Model(const fs::path& path, bool flipTextures)
     {
+        stbi_set_flip_vertically_on_load(flipTextures);
         Assimp::Importer importer;
         const auto scene = importer.ReadFile(path.string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
