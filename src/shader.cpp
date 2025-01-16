@@ -19,7 +19,7 @@ namespace Renderer3D {
         const auto vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderID, 1, &vertexShaderSourceCString, nullptr);
         glCompileShader(vertexShaderID);
-        CheckShaderCompilationResult(vertexShaderID);
+        CheckShaderCompilationResult(vertexShaderID, vertexPath);
 
         // Fragment shader
         const auto fragmentShaderSource = LoadShaderSource(fragmentPath);
@@ -27,14 +27,14 @@ namespace Renderer3D {
         const auto fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShaderID, 1, &fragmentShaderSourceCString, nullptr);
         glCompileShader(fragmentShaderID);
-        CheckShaderCompilationResult(fragmentShaderID);
+        CheckShaderCompilationResult(fragmentShaderID, fragmentPath);
 
         // Create shader program
         _programID = glCreateProgram();
         glAttachShader(_programID, vertexShaderID);
         glAttachShader(_programID, fragmentShaderID);
         glLinkProgram(_programID);
-        CheckProgramLinkingResult(_programID);
+        CheckProgramLinkingResult(_programID, vertexPath, fragmentPath);
 
         // Cleanup
         glDeleteShader(vertexShaderID);
@@ -159,7 +159,7 @@ namespace Renderer3D {
         return buffer.str();
     }
 
-    void Shader::CheckShaderCompilationResult(const GLuint shaderId)
+    void Shader::CheckShaderCompilationResult(const GLuint shaderId, const fs::path& path)
     {
         int success;
         glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
@@ -167,11 +167,11 @@ namespace Renderer3D {
         {
             char infoLog[LOG_BUFFER_SIZE];
             glGetShaderInfoLog(shaderId, LOG_BUFFER_SIZE, nullptr, infoLog);
-            spdlog::error("Shader compilation failed: {}", infoLog);
+            spdlog::error("Shader compilation failed (path: {}): {}", path.string(), infoLog);
         }
     }
 
-    void Shader::CheckProgramLinkingResult(const GLuint programId)
+    void Shader::CheckProgramLinkingResult(const GLuint programId, const fs::path& vertexPath, const fs::path& fragmentPath)
     {
         int success;
         glGetProgramiv(programId, GL_LINK_STATUS, &success);
@@ -179,7 +179,7 @@ namespace Renderer3D {
         {
             char infoLog[LOG_BUFFER_SIZE];
             glGetProgramInfoLog(programId, LOG_BUFFER_SIZE, nullptr, infoLog);
-            spdlog::error("Shader program linking failed: {}", infoLog);
+            spdlog::error("Shader program linking failed (vertex: {}, fragment: {}): {}", vertexPath.string(), fragmentPath.string(), infoLog);
         }
     }
 } // Renderer3D

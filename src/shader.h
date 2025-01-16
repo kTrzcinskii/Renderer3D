@@ -33,8 +33,8 @@ namespace Renderer3D {
         GLuint _programID;
         // Helpers
         static std::string LoadShaderSource(const fs::path& path);
-        static void CheckShaderCompilationResult(GLuint shaderId);
-        static void CheckProgramLinkingResult(GLuint programId);
+        static void CheckShaderCompilationResult(GLuint shaderId, const fs::path& path);
+        static void CheckProgramLinkingResult(GLuint programId, const fs::path& vertexPath, const fs::path& fragmentPath);
         static constexpr size_t LOG_BUFFER_SIZE = 1024;
     };
 
