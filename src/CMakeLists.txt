@@ -15,6 +15,8 @@ add_executable(Renderer3D
         window.h
         renderer.cpp
         renderer.h
+        deferred_shaderer.cpp
+        deferred_shaderer.h
 )
 
 # Link libraries
