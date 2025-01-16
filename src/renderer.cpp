@@ -12,14 +12,108 @@
 #include "model.h"
 
 namespace Renderer3D {
-    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT)
+    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT)
     {
-        stbi_set_flip_vertically_on_load(true);
-        // We store pointer to renderer inside window so we could easily setup callbacks
+        // We store pointer to renderer inside window so we could easily set up callbacks
         _window.SetUserPointer(this);
         _window.SetWindowResizeCallback(ResizeCallback);
         _window.SetCursorPositionCallback(CursorPosCallback);
     }
+
+    // TODO: move to PointLightSource class
+    // renderSphere() renders a 3D sphere in NDC.
+// -------------------------------------------------
+unsigned int sphereVAO = 0;
+unsigned int sphereVBO = 0;
+unsigned int sphereEBO = 0; // For indexed rendering
+void renderSphere()
+{
+    const unsigned int X_SEGMENTS = 64; // Number of segments along longitude
+    const unsigned int Y_SEGMENTS = 64; // Number of segments along latitude
+    const float PI = 3.14159265359f;
+
+    static std::vector<float> vertices;
+    static std::vector<unsigned int> indices;
+
+    if (sphereVAO == 0)
+    {
+        // Generate vertices
+        for (unsigned int y = 0; y <= Y_SEGMENTS; ++y)
+        {
+            for (unsigned int x = 0; x <= X_SEGMENTS; ++x)
+            {
+                float xSegment = (float)x / X_SEGMENTS;
+                float ySegment = (float)y / Y_SEGMENTS;
+                float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+                float yPos = std::cos(ySegment * PI);
+                float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+
+                // Vertex position
+                vertices.push_back(xPos);
+                vertices.push_back(yPos);
+                vertices.push_back(zPos);
+
+                // Normal (same as position for unit sphere)
+                vertices.push_back(xPos);
+                vertices.push_back(yPos);
+                vertices.push_back(zPos);
+
+                // Texture coordinates
+                vertices.push_back(xSegment);
+                vertices.push_back(ySegment);
+            }
+        }
+
+        // Generate indices
+        for (unsigned int y = 0; y < Y_SEGMENTS; ++y)
+        {
+            for (unsigned int x = 0; x < X_SEGMENTS; ++x)
+            {
+                unsigned int first = (y * (X_SEGMENTS + 1)) + x;
+                unsigned int second = first + X_SEGMENTS + 1;
+
+                indices.push_back(first);
+                indices.push_back(second);
+                indices.push_back(first + 1);
+
+                indices.push_back(second);
+                indices.push_back(second + 1);
+                indices.push_back(first + 1);
+            }
+        }
+
+        // Generate and bind buffers
+        glGenVertexArrays(1, &sphereVAO);
+        glGenBuffers(1, &sphereVBO);
+        glGenBuffers(1, &sphereEBO);
+
+        glBindVertexArray(sphereVAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+        // Set vertex attribute pointers
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
+    // Render sphere
+    glBindVertexArray(sphereVAO);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
 
     void Renderer::Render()
     {
@@ -27,13 +121,30 @@ namespace Renderer3D {
 
         // TODO: remove, only for testing
         _window.LockCursor();
-        const Shader modelShader("../assets/shaders/model_without_light_vertex.glsl", "../assets/shaders/model_without_light_fragment.glsl");
+        const Shader lightSourceShader("../assets/shaders/light_source_vertex.glsl", "../assets/shaders/light_source_fragment.glsl");
 
         const Model backpack("../assets/models/backpack/backpack.obj", true);
         const Model ufo("../assets/models/ufo/Low_poly_UFO.obj");
         const Model cottage("../assets/models/cottage/Cottage_FREE.obj");
 
-        glEnable(GL_DEPTH_TEST);
+        // TODO: move to scene class probably?
+        const unsigned int NR_LIGHTS = 64;
+        std::vector<glm::vec3> lightPositions;
+        std::vector<glm::vec3> lightColors;
+        srand(13);
+        for (unsigned int i = 0; i < NR_LIGHTS; i++)
+        {
+            // calculate slightly random offsets
+            float xPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
+            float yPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 4.0);
+            float zPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
+            lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+            // also calculate random color
+            float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+            float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+            float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
+            lightColors.push_back(glm::vec3(rColor, gColor, bColor));
+        }
 
         while (!_window.ShouldClose())
         {
@@ -46,38 +157,82 @@ namespace Renderer3D {
             ProcessInput();
 
             // Render
-            glClearColor(0.2, 0.2f, 0.4f, 0.2f);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Camera matrices
             const auto projection = _freeMovingCamera.GetProjectionMatrix();
             const auto view = _freeMovingCamera.GetViewMatrix();
-            modelShader.Activate();
-            modelShader.SetUniform("view", view);
-            modelShader.SetUniform("projection", projection);
 
-            // Render backpack
+            // Geometry pass - render data into gBuffer
+            _deferredShader.BindGBuffer();
+            _deferredShader.GetGeometryPassShader()->Activate();
+            _deferredShader.GetGeometryPassShader()->SetUniform("projection", projection);
+            _deferredShader.GetGeometryPassShader()->SetUniform("view", view);
+
+            // Render backpack to gBuffer
             auto backpackModelMatrix = glm::mat4(1.0f);
             backpackModelMatrix = glm::translate(backpackModelMatrix, glm::vec3(-0.0f, -1.0f, -3.0f));
             backpackModelMatrix = glm::scale(backpackModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-            modelShader.Activate();
-            modelShader.SetUniform("model", backpackModelMatrix);
-            backpack.Draw(modelShader);
+            _deferredShader.GetGeometryPassShader()->SetUniform("model", backpackModelMatrix);
+            backpack.Draw(_deferredShader.GetGeometryPassShader());
 
-            // Render ufo
+            // Render ufo to gBuffer
             auto ufoModelMatrix = glm::mat4(1.0f);
             ufoModelMatrix = glm::translate(ufoModelMatrix, glm::vec3(-5.0f, 1.0f, -5.0f));
             ufoModelMatrix = glm::scale(ufoModelMatrix, glm::vec3(0.09f, 0.09f, 0.09f));
-            modelShader.Activate();
-            modelShader.SetUniform("model", ufoModelMatrix);
-            ufo.Draw(modelShader);
+            _deferredShader.GetGeometryPassShader()->SetUniform("model", ufoModelMatrix);
+            ufo.Draw(_deferredShader.GetGeometryPassShader());
 
-            // Render cottage
+            // Render cottage to gBuffer
             auto cottageModelMatrix = glm::mat4(1.0f);
             cottageModelMatrix = glm::translate(cottageModelMatrix, glm::vec3(14.0f, -2.0f, 2.0f));
-            modelShader.Activate();
-            modelShader.SetUniform("model", cottageModelMatrix);
-            cottage.Draw(modelShader);
+            _deferredShader.GetGeometryPassShader()->SetUniform("model", cottageModelMatrix);
+            cottage.Draw(_deferredShader.GetGeometryPassShader());
+
+            // Bind back to default frame buffer
+            _deferredShader.UnbindGBuffer();
+
+            // Lighting pass - calculate lighting using data from geometry pass
+            _deferredShader.GetLightingPassShader()->Activate();
+            _deferredShader.BindGTextures();
+
+            for (unsigned int i = 0; i < lightPositions.size(); i++)
+            {
+                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].position", lightPositions[i]);
+                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].color", lightColors[i]);
+                // update attenuation parameters and calculate radius
+                const float constant = 1.0f; // note that we don't send this to the shader, we assume it is always 1.0 (in our case)
+                const float linear = 0.7f;
+                const float quadratic = 1.8f;
+                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].linear", linear);
+                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].quadratic", quadratic);
+                // then calculate radius of light volume/sphere
+                const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
+                float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
+                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].radius", radius);
+            }
+            _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
+
+            // Render quad with proper lighting from previous step
+            _deferredShader.RenderQuad();
+
+            // Copy depth buffer to be able to use forward rendering
+            _deferredShader.CopyDepthBufferToDefaultBuffer();
+
+            // Render light sources using forward rendering
+            lightSourceShader.Activate();
+            lightSourceShader.SetUniform("view", view);
+            lightSourceShader.SetUniform("projection", projection);
+            for (unsigned int i = 0; i < lightPositions.size(); i++)
+            {
+                auto model = glm::mat4(1.0f);
+                model = glm::translate(model, lightPositions[i]);
+                model = glm::scale(model, glm::vec3(0.125f));
+                lightSourceShader.SetUniform("model", model);
+                lightSourceShader.SetUniform("lightColor", lightColors[i]);
+                renderSphere();
+            }
 
             // Double buffer and events
             _window.SwapBuffers();
@@ -90,6 +245,7 @@ namespace Renderer3D {
         spdlog::info("Window resized: {}x{}", width, height);
         glViewport(0, 0, width, height);
         _freeMovingCamera.UpdateScreenSize(static_cast<float>(width), static_cast<float>(height));
+        _deferredShader.Resize(width, height);
     }
 
     void Renderer::ProcessInput()

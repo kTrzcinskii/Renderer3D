@@ -5,8 +5,12 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "window.h"
 #include "camera.h"
+#include "deferred_shaderer.h"
 
 namespace Renderer3D {
 
@@ -20,11 +24,12 @@ namespace Renderer3D {
         float _deltaTime = 0.0;
         bool _firstMouseMove = true;
         float _mouseXPos = Renderer::INITIAL_WIDTH / 2.0f;
-        float _mouseYPos = Renderer::INITIAL_HEIGHT / 2.0f;;
+        float _mouseYPos = Renderer::INITIAL_HEIGHT / 2.0f;
 
         // Objects
         Window _window;
         Camera _freeMovingCamera;
+        DeferredShaderer _deferredShader;
 
         // Actions
         void ProcessWindowResize(int width, int height);
