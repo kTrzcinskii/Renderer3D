@@ -105,4 +105,32 @@ namespace Renderer3D {
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(0);
     }
+
+    void Mesh::Draw(const std::shared_ptr<Shader>& shader) const
+    {
+        // Setup textures
+        shader->Activate();
+        size_t textureUnit = 0;
+        for (const auto& [type, textures]: _textures)
+        {
+            auto typeName = textureTypeToString(type);
+            for (size_t i = 0; i < textures.size(); i++)
+            {
+                glActiveTexture(GL_TEXTURE0 + textureUnit);
+                // We must use this struct name for our uniform inside shaders
+                auto name = std::format("material.{}{}", typeName, i);
+                shader->SetUniform(name, static_cast<int>(textureUnit));
+                glBindTexture(GL_TEXTURE_2D, textures[i].get()->GetId());
+                textureUnit++;
+            }
+        }
+
+        // Draw mesh
+        glBindVertexArray(_vaoID);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(_indices.size()), GL_UNSIGNED_INT, nullptr);
+
+        // Reset state
+        glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(0);
+    }
 } // Renderer3D

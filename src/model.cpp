@@ -31,6 +31,14 @@ namespace Renderer3D {
         }
     }
 
+    void Model::Draw(const std::shared_ptr<Shader>& shader) const
+    {
+        for (auto &mesh: _meshes)
+        {
+            mesh.Draw(shader);
+        }
+    }
+
     void Model::ProcessNode(const aiNode* node, const aiScene* scene) // NOLINT(*-no-recursion)
     {
         for (size_t i = 0; i < node->mNumMeshes; i++)

@@ -25,6 +25,7 @@ namespace Renderer3D {
         Mesh(Mesh&& mesh) noexcept;
         ~Mesh();
         void Draw(const Shader& shader) const;
+        void Draw(const std::shared_ptr<Shader>& shader) const;
         // TODO: add support for DrawInstanced (?)
     private:
         std::vector<Vertex> _vertices;
