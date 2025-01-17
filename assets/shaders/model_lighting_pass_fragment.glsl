@@ -8,15 +8,16 @@ struct PointLight {
     float radius;
 };
 
-const int NR_POINT_LIGHTS = 64;
+const int MAX_NR_POINT_LIGHTS = 256;
 
 in vec2 TexCoords;
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLights[MAX_NR_POINT_LIGHTS];
 uniform vec3 cameraPos;
+uniform int nrPointLights;
 
 out vec4 FragColor;
 
@@ -32,7 +33,7 @@ void main()
     // Ambient
     vec3 lighting = diffuse * 0.1;
     vec3 cameraDir = normalize(cameraPos - fragPos);
-    for (int i = 0; i < NR_POINT_LIGHTS; i++)
+    for (int i = 0; i < nrPointLights; i++)
     {
         float distance = length(pointLights[i].position - fragPos);
         if (distance < pointLights[i].radius)

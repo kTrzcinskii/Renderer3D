@@ -10,6 +10,7 @@
 #include "renderer.h"
 #include "shader.h"
 #include "model.h"
+#include "point_light_source.h"
 
 namespace Renderer3D {
     Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT)
@@ -128,22 +129,22 @@ void renderSphere()
         const Model cottage("../assets/models/cottage/Cottage_FREE.obj");
 
         // TODO: move to scene class probably?
-        const unsigned int NR_LIGHTS = 64;
-        std::vector<glm::vec3> lightPositions;
-        std::vector<glm::vec3> lightColors;
-        srand(13);
+        const unsigned int NR_LIGHTS = 256;
+        std::vector<PointLightSource> pointLightSources;
+        srand(time(nullptr));
         for (unsigned int i = 0; i < NR_LIGHTS; i++)
         {
             // calculate slightly random offsets
             float xPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
             float yPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 4.0);
             float zPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
-            lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+            const auto position = glm::vec3(xPos, yPos, zPos);
             // also calculate random color
             float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
             float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
             float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            lightColors.push_back(glm::vec3(rColor, gColor, bColor));
+            const auto color = glm::vec3(rColor, gColor, bColor);
+            pointLightSources.push_back(PointLightSource(position, color));
         }
 
         while (!_window.ShouldClose())
@@ -179,7 +180,7 @@ void renderSphere()
 
             // Render ufo to gBuffer
             auto ufoModelMatrix = glm::mat4(1.0f);
-            ufoModelMatrix = glm::translate(ufoModelMatrix, glm::vec3(-5.0f, 1.0f, -5.0f));
+            ufoModelMatrix = glm::translate(ufoModelMatrix, glm::vec3(5.0f, 1.0f, 4.0f));
             ufoModelMatrix = glm::scale(ufoModelMatrix, glm::vec3(0.09f, 0.09f, 0.09f));
             _deferredShader.GetGeometryPassShader()->SetUniform("model", ufoModelMatrix);
             ufo.Draw(_deferredShader.GetGeometryPassShader());
@@ -197,21 +198,13 @@ void renderSphere()
             _deferredShader.GetLightingPassShader()->Activate();
             _deferredShader.BindGTextures();
 
-            for (unsigned int i = 0; i < lightPositions.size(); i++)
+            // Set point lights data
+            _deferredShader.GetLightingPassShader()->SetUniform("nrPointLights", static_cast<int>(pointLightSources.size()));
+            for (size_t i = 0; i < pointLightSources.size(); i++)
             {
-                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].position", lightPositions[i]);
-                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].color", lightColors[i]);
-                // update attenuation parameters and calculate radius
-                const float constant = 1.0f; // note that we don't send this to the shader, we assume it is always 1.0 (in our case)
-                const float linear = 0.7f;
-                const float quadratic = 1.8f;
-                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].linear", linear);
-                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].quadratic", quadratic);
-                // then calculate radius of light volume/sphere
-                const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
-                float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
-                _deferredShader.GetLightingPassShader()->SetUniform("pointLights[" + std::to_string(i) + "].radius", radius);
+                pointLightSources[i].SetUniforms(_deferredShader.GetLightingPassShader(), i);
             }
+
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
 
             // Render quad with proper lighting from previous step
@@ -224,13 +217,13 @@ void renderSphere()
             lightSourceShader.Activate();
             lightSourceShader.SetUniform("view", view);
             lightSourceShader.SetUniform("projection", projection);
-            for (unsigned int i = 0; i < lightPositions.size(); i++)
+            for (size_t i = 0; i < pointLightSources.size(); i++)
             {
                 auto model = glm::mat4(1.0f);
-                model = glm::translate(model, lightPositions[i]);
+                model = glm::translate(model, pointLightSources[i].GetPosition());
                 model = glm::scale(model, glm::vec3(0.125f));
                 lightSourceShader.SetUniform("model", model);
-                lightSourceShader.SetUniform("lightColor", lightColors[i]);
+                lightSourceShader.SetUniform("lightColor", pointLightSources[i].GetColor());
                 renderSphere();
             }
 
