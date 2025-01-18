@@ -41,8 +41,18 @@ namespace Renderer3D {
         glDeleteShader(fragmentShaderID);
     }
 
+    Shader::Shader(Shader&& other) noexcept
+    {
+        other._isMoved = true;
+        _programID = other._programID;
+    }
+
     Shader::~Shader()
     {
+        if (_isMoved)
+        {
+            return;
+        }
         if (_programID != 0)
         {
             glDeleteProgram(_programID);

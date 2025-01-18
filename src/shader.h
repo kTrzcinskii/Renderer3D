@@ -17,6 +17,7 @@ namespace Renderer3D {
     class Shader {
     public:
         Shader(const fs::path& vertexPath, const fs::path& fragmentPath);
+        Shader(Shader&& other) noexcept;
         ~Shader();
         [[nodiscard]] GLuint GetProgramId() const;
         void Activate() const;
@@ -31,6 +32,7 @@ namespace Renderer3D {
         void SetUniform(const std::string &name, const glm::mat4 &value) const;
     private:
         GLuint _programID;
+        bool _isMoved = false;
         // Helpers
         static std::string LoadShaderSource(const fs::path& path);
         static void CheckShaderCompilationResult(GLuint shaderId, const fs::path& path);
