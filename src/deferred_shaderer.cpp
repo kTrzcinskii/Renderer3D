@@ -53,6 +53,8 @@ namespace Renderer3D {
         _height = shaderer._height;
         _quadVaoID = shaderer._quadVaoID;
         _quadVboID = shaderer._quadVboID;
+        _geometryPassShader = shaderer._geometryPassShader;
+        _lightingPassShader = shaderer._lightingPassShader;
     }
 
     void DeferredShaderer::Resize(const size_t width, const size_t height)
