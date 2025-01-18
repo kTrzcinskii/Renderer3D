@@ -8,8 +8,9 @@
 #include <stb_image/stb_image.h>
 
 #include "renderer.h"
+
+#include "entity.h"
 #include "shader.h"
-#include "model.h"
 #include "point_light_source.h"
 
 namespace Renderer3D {
@@ -47,9 +48,17 @@ namespace Renderer3D {
         // TODO: remove, only for testing
         _window.LockCursor();
 
-        const Model backpack("../assets/models/backpack/backpack.obj", true);
-        const Model ufo("../assets/models/ufo/Low_poly_UFO.obj");
-        const Model cottage("../assets/models/cottage/Cottage_FREE.obj");
+        Entity backpack("../assets/models/backpack/backpack.obj", true);
+        backpack.UpdatePosition(glm::vec3(-0.0f, -1.0f, -3.0f));
+        backpack.UpdateScale(glm::vec3(0.8f, 0.8f, 0.8f));
+
+        Entity ufo("../assets/models/ufo/Low_poly_UFO.obj");
+        ufo.UpdatePosition(glm::vec3(5.0f, 1.0f, 4.0f));
+        ufo.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+
+        Entity cottage("../assets/models/cottage/Cottage_FREE.obj");
+        cottage.UpdatePosition(glm::vec3(14.0f, -2.0f, 2.0f));
+        cottage.UpdateRotationY(90.0f);
 
         // TODO: move to scene class probably?
         const unsigned int NR_LIGHTS = 256;
@@ -95,23 +104,13 @@ namespace Renderer3D {
             _deferredShader.GetGeometryPassShader()->SetUniform("view", view);
 
             // Render backpack to gBuffer
-            auto backpackModelMatrix = glm::mat4(1.0f);
-            backpackModelMatrix = glm::translate(backpackModelMatrix, glm::vec3(-0.0f, -1.0f, -3.0f));
-            backpackModelMatrix = glm::scale(backpackModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-            _deferredShader.GetGeometryPassShader()->SetUniform("model", backpackModelMatrix);
             backpack.Draw(_deferredShader.GetGeometryPassShader());
 
             // Render ufo to gBuffer
-            auto ufoModelMatrix = glm::mat4(1.0f);
-            ufoModelMatrix = glm::translate(ufoModelMatrix, glm::vec3(5.0f, 1.0f, 4.0f));
-            ufoModelMatrix = glm::scale(ufoModelMatrix, glm::vec3(0.09f, 0.09f, 0.09f));
-            _deferredShader.GetGeometryPassShader()->SetUniform("model", ufoModelMatrix);
+            ufo.UpdateRotationY(ufo.GetRotationY() + _deltaTime * 25.0f);
             ufo.Draw(_deferredShader.GetGeometryPassShader());
 
             // Render cottage to gBuffer
-            auto cottageModelMatrix = glm::mat4(1.0f);
-            cottageModelMatrix = glm::translate(cottageModelMatrix, glm::vec3(14.0f, -2.0f, 2.0f));
-            _deferredShader.GetGeometryPassShader()->SetUniform("model", cottageModelMatrix);
             cottage.Draw(_deferredShader.GetGeometryPassShader());
 
             // Bind back to default frame buffer
