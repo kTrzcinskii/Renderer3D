@@ -21,6 +21,8 @@ add_executable(Renderer3D
         point_light_source.h
         point_lights_container.cpp
         point_lights_container.h
+        entity.cpp
+        entity.h
 )
 
 # Link libraries
