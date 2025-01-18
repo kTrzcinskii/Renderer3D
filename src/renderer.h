@@ -11,6 +11,7 @@
 #include "window.h"
 #include "camera.h"
 #include "deferred_shaderer.h"
+#include "point_lights_container.h"
 
 namespace Renderer3D {
 
@@ -30,6 +31,7 @@ namespace Renderer3D {
         Window _window;
         Camera _freeMovingCamera;
         DeferredShaderer _deferredShader;
+        std::unique_ptr<PointLightsContainer> _pointLightsContainer = nullptr;
 
         // Actions
         void ProcessWindowResize(int width, int height);
