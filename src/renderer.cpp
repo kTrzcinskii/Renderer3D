@@ -14,70 +14,23 @@
 #include "point_light_source.h"
 
 namespace Renderer3D {
-    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT)
+    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _scene(std::make_unique<Scene>(Scene()))
     {
         // We store pointer to renderer inside window so we could easily set up callbacks
         _window.SetUserPointer(this);
         _window.SetWindowResizeCallback(ResizeCallback);
         _window.SetCursorPositionCallback(CursorPosCallback);
-        // TODO: move to scene class probably?
-        const unsigned int NR_LIGHTS = 256;
-        std::vector<PointLightSource> pointLightSources;
-        srand(time(nullptr));
-        for (unsigned int i = 0; i < NR_LIGHTS; i++)
-        {
-            // calculate slightly random offsets
-            float xPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
-            float yPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 4.0);
-            float zPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
-            const auto position = glm::vec3(xPos, yPos, zPos);
-            // also calculate random color
-            float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            const auto color = glm::vec3(rColor, gColor, bColor);
-            pointLightSources.push_back(PointLightSource(position, color));
-        }
-        _pointLightsContainer = std::make_unique<PointLightsContainer>(PointLightsContainer(pointLightSources));
+
+        // Setup scene
+        GeneratePointLightsForScene();
+        SetupModelsForScene();
     }
 
     void Renderer::Render()
     {
         glEnable(GL_DEPTH_TEST);
 
-        // TODO: remove, only for testing
         _window.LockCursor();
-
-        Entity backpack("../assets/models/backpack/backpack.obj", true);
-        backpack.UpdatePosition(glm::vec3(-0.0f, -1.0f, -3.0f));
-        backpack.UpdateScale(glm::vec3(0.8f, 0.8f, 0.8f));
-
-        Entity ufo("../assets/models/ufo/Low_poly_UFO.obj");
-        ufo.UpdatePosition(glm::vec3(5.0f, 1.0f, 4.0f));
-        ufo.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
-
-        Entity cottage("../assets/models/cottage/Cottage_FREE.obj");
-        cottage.UpdatePosition(glm::vec3(14.0f, -2.0f, 2.0f));
-        cottage.UpdateRotationY(90.0f);
-
-        // TODO: move to scene class probably?
-        const unsigned int NR_LIGHTS = 256;
-        std::vector<PointLightSource> pointLightSources;
-        srand(time(nullptr));
-        for (unsigned int i = 0; i < NR_LIGHTS; i++)
-        {
-            // calculate slightly random offsets
-            float xPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
-            float yPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 4.0);
-            float zPos = static_cast<float>(((rand() % 100) / 100.0) * 16.0 - 3.0);
-            const auto position = glm::vec3(xPos, yPos, zPos);
-            // also calculate random color
-            float rColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            float gColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            float bColor = static_cast<float>(((rand() % 100) / 200.0f) + 0.5); // between 0.5 and 1.)
-            const auto color = glm::vec3(rColor, gColor, bColor);
-            pointLightSources.push_back(PointLightSource(position, color));
-        }
 
         while (!_window.ShouldClose())
         {
@@ -100,18 +53,8 @@ namespace Renderer3D {
             // Geometry pass - render data into gBuffer
             _deferredShader.BindGBuffer();
             _deferredShader.GetGeometryPassShader()->Activate();
-            _deferredShader.GetGeometryPassShader()->SetUniform("projection", projection);
-            _deferredShader.GetGeometryPassShader()->SetUniform("view", view);
-
-            // Render backpack to gBuffer
-            backpack.Draw(_deferredShader.GetGeometryPassShader());
-
-            // Render ufo to gBuffer
-            ufo.UpdateRotationY(ufo.GetRotationY() + _deltaTime * 25.0f);
-            ufo.Draw(_deferredShader.GetGeometryPassShader());
-
-            // Render cottage to gBuffer
-            cottage.Draw(_deferredShader.GetGeometryPassShader());
+            _scene->UpdateEntities(_deltaTime);
+            _scene->RenderEntitiesToGeometryPass(_deferredShader.GetGeometryPassShader(), view, projection);
 
             // Bind back to default frame buffer
             _deferredShader.UnbindGBuffer();
@@ -119,9 +62,7 @@ namespace Renderer3D {
             // Lighting pass - calculate lighting using data from geometry pass
             _deferredShader.GetLightingPassShader()->Activate();
             _deferredShader.BindGTextures();
-
-            _pointLightsContainer->SetLightingPassPointLightsData(_deferredShader.GetLightingPassShader());
-
+            _scene->SetLightingPassShaderData(_deferredShader.GetLightingPassShader());
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
 
             // Render quad with proper lighting from previous step
@@ -131,7 +72,7 @@ namespace Renderer3D {
             _deferredShader.CopyDepthBufferToDefaultBuffer();
 
             // Render point light sources using forward rendering
-            _pointLightsContainer->RenderPointLights(view, projection);
+            _scene->RenderPointLightsForwardRendering(view, projection);
 
             // Double buffer and events
             _window.SwapBuffers();
@@ -222,5 +163,54 @@ namespace Renderer3D {
             return;
         }
         renderer->ProcessMouseMovement(xPos, yPos);
+    }
+
+    void Renderer::GeneratePointLightsForScene() const
+    {
+        std::vector<PointLightSource> pointLightSources;
+        srand(time(nullptr));
+        for (unsigned int i = 0; i < Renderer::POINTS_LIGHTS_COUNT; i++)
+        {
+            // Random offsets
+            const auto xPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 7.0);
+            const auto yPos = static_cast<float>(rand() % 100 / 100.0 * 10.0 + 0.1);
+            const auto zPos = static_cast<float>(rand() % 100 / 100.0 * 27.0 - 8.0);
+            const auto position = glm::vec3(xPos, yPos, zPos);
+            // Random color
+            const auto rColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
+            const auto gColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
+            const auto bColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
+            const auto color = glm::vec3(rColor, gColor, bColor);
+            pointLightSources.emplace_back(position, color);
+        }
+        _scene->UpdatePointLightContainer(std::make_unique<PointLightsContainer>(PointLightsContainer(pointLightSources)));
+    }
+
+    void Renderer::SetupModelsForScene() const
+    {
+        Entity backpack("../assets/models/backpack/backpack.obj", true);
+        backpack.UpdatePosition(glm::vec3(0.0f, 2.0f, -3.0f));
+        backpack.UpdateScale(glm::vec3(0.8f, 0.8f, 0.8f));
+        _scene->AddEntity("backpack", backpack);
+
+        Entity ufo("../assets/models/ufo/Low_poly_UFO.obj");
+        ufo.UpdatePosition(glm::vec3(5.0f, 3.5f, 4.0f));
+        ufo.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+        _scene->AddEntity("ufo", ufo);
+        _scene->AddEntityUpdateFunction("ufo", [](Entity& entity, const float deltaTime)
+        {
+            entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
+        });
+
+        Entity cottage("../assets/models/cottage/Cottage_FREE.obj");
+        cottage.UpdatePosition(glm::vec3(14.0f, 0.0f, 2.0f));
+        cottage.UpdateRotationY(90.0f);
+        _scene->AddEntity("cottage", cottage);
+
+        Entity farmHouse("../assets/models/farm_house/farmhouse_obj.obj");
+        farmHouse.UpdatePosition(glm::vec3(-8.0f, 0.0f, 2.0f));
+        farmHouse.UpdateScale(glm::vec3(0.2f, 0.2f, 0.2f));
+        farmHouse.UpdateRotationY(-90.0f);
+        _scene->AddEntity("farmHouse", farmHouse);
     }
 } // Renderer3D
