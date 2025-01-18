@@ -25,6 +25,8 @@ add_executable(Renderer3D
         entity.h
         scene.cpp
         scene.h
+        floor.cpp
+        floor.h
 )
 
 # Link libraries
