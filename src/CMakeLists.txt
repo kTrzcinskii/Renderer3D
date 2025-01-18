@@ -19,6 +19,8 @@ add_executable(Renderer3D
         deferred_shaderer.h
         point_light_source.cpp
         point_light_source.h
+        point_lights_container.cpp
+        point_lights_container.h
 )
 
 # Link libraries
