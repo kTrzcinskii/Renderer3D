@@ -9,6 +9,7 @@
 
 #include "shader.h"
 #include "entity.h"
+#include "floor.h"
 #include "point_lights_container.h"
 
 namespace Renderer3D {
@@ -28,6 +29,7 @@ namespace Renderer3D {
         std::unordered_map<std::string, Entity> _entities;
         std::unordered_map<std::string, UpdateEntityFunctionType> _updateEntityFunctions;
         std::unique_ptr<PointLightsContainer> _pointLightsContainer;
+        Floor _floor;
     };
 
 } // Renderer3D

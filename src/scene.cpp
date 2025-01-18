@@ -55,6 +55,7 @@ namespace Renderer3D {
     {
         geometryPassShader->SetUniform("view", view);
         geometryPassShader->SetUniform("projection", projection);
+        _floor.Draw(geometryPassShader);
         for (const auto& [_, entity] : _entities)
         {
            entity.Draw(geometryPassShader);
