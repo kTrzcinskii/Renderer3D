@@ -172,9 +172,9 @@ namespace Renderer3D {
         for (unsigned int i = 0; i < Renderer::POINTS_LIGHTS_COUNT; i++)
         {
             // Random offsets
-            const auto xPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 7.0);
-            const auto yPos = static_cast<float>(rand() % 100 / 100.0 * 10.0 + 0.1);
-            const auto zPos = static_cast<float>(rand() % 100 / 100.0 * 27.0 - 8.0);
+            const auto xPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 15.0);
+            const auto yPos = static_cast<float>(rand() % 100 / 100.0 * 5.0 + 0.1);
+            const auto zPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 15.0);
             const auto position = glm::vec3(xPos, yPos, zPos);
             // Random color
             const auto rColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
