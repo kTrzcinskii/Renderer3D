@@ -86,6 +86,11 @@ namespace Renderer3D {
         glfwSetCursorPosCallback(_glfwWindow.get(), callback);
     }
 
+    void Window::SetKeyCallback(const GLFWkeyfun callback) const
+    {
+        glfwSetKeyCallback(_glfwWindow.get(), callback);
+    }
+
     bool Window::IsKeyPressed(const int key) const
     {
         return glfwGetKey(_glfwWindow.get(), key) == GLFW_TRUE;

@@ -20,6 +20,7 @@ namespace Renderer3D {
         _window.SetUserPointer(this);
         _window.SetWindowResizeCallback(ResizeCallback);
         _window.SetCursorPositionCallback(CursorPosCallback);
+        _window.SetKeyCallback(KeyCallback);
 
         // Setup scene
         GeneratePointLightsForScene();
@@ -127,6 +128,10 @@ namespace Renderer3D {
 
     void Renderer::ProcessMouseMovement(double xPos, double yPos)
     {
+        if (!_isCursorLocked)
+        {
+            return;
+        }
         spdlog::info("Mouse moved: {}x{}", xPos, yPos);
         const auto x = static_cast<float>(xPos);
         const auto y = static_cast<float>(yPos);
@@ -143,6 +148,25 @@ namespace Renderer3D {
         _mouseYPos = y;
 
         _freeMovingCamera.Rotate({xOffset, yOffset});
+    }
+
+    void Renderer::ProcessKeyCallback(const int key, const int action)
+    {
+        if (key == GLFW_KEY_L && action == GLFW_RELEASE)
+        {
+            if (_isCursorLocked)
+            {
+                _window.UnlockCursor();
+                _isCursorLocked = false;
+                spdlog::info("Cursor unlocked!");
+            }
+            else
+            {
+                _window.LockCursor();
+                _isCursorLocked = true;
+                spdlog::info("Cursor locked!");
+            }
+        }
     }
 
     void Renderer::ResizeCallback(GLFWwindow* window, const int width, const int height)
@@ -167,6 +191,18 @@ namespace Renderer3D {
             return;
         }
         renderer->ProcessMouseMovement(xPos, yPos);
+    }
+
+    void Renderer::KeyCallback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
+    {
+        // ReSharper disable once CppTooWideScopeInitStatement
+        const auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+        if (renderer == nullptr)
+        {
+            spdlog::error("Window has user pointer set to NULL");
+            return;
+        }
+        renderer->ProcessKeyCallback(key, action);
     }
 
     void Renderer::GeneratePointLightsForScene() const

@@ -20,6 +20,9 @@ namespace Renderer3D {
         Renderer();
         void Render();
     private:
+        // Controls state
+        bool _isCursorLocked = true;
+
         // Renderer data
         float _lastFrameTime = 0.0;
         float _deltaTime = 0.0;
@@ -37,10 +40,12 @@ namespace Renderer3D {
         void ProcessWindowResize(int width, int height);
         void ProcessInput();
         void ProcessMouseMovement(double xPos, double yPos);
+        void ProcessKeyCallback(int key, int action);
 
         // Window callbacks
         static void ResizeCallback(GLFWwindow* window, int width, int height);
         static void CursorPosCallback(GLFWwindow* window, double xPos, double yPos);
+        static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
         // Helpers
         void GeneratePointLightsForScene() const;
