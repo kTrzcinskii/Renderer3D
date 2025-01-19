@@ -27,6 +27,8 @@ add_executable(Renderer3D
         scene.h
         floor.cpp
         floor.h
+        skybox.cpp
+        skybox.h
 )
 
 # Link libraries
