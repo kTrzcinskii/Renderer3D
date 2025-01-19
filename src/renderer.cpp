@@ -22,6 +22,9 @@ namespace Renderer3D {
         _window.SetCursorPositionCallback(CursorPosCallback);
         _window.SetKeyCallback(KeyCallback);
 
+        // Init controls
+        _controls = std::make_unique<Controls>(_window);
+
         // Setup scene
         GeneratePointLightsForScene();
         SetupModelsForScene();
@@ -66,6 +69,7 @@ namespace Renderer3D {
             _deferredShader.BindGTextures();
             _scene->SetLightingPassShaderData(_deferredShader.GetLightingPassShader());
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
+            _deferredShader.UpdateAmbientLevel(_controls->GetSceneMode());
 
             // Render quad with proper lighting from previous step
             _deferredShader.RenderQuad();
@@ -73,15 +77,16 @@ namespace Renderer3D {
             // Copy depth buffer to be able to use forward rendering
             _deferredShader.CopyDepthBufferToDefaultBuffer();
 
-            // Render point light sources using forward rendering
+            // Render additional effects using forward rendering
             _scene->RenderPointLightsForwardRendering(view, projection);
+            RenderSkybox(view, projection);
 
-            // Render skybox
-            _scene->RenderNightSkyboxForwardRendering(view, projection);
-
-            // Double buffer and events
-            _window.SwapBuffers();
             _window.PollEvents();
+
+            // Draw controls
+            _controls->Draw();
+
+            _window.SwapBuffers();
         }
     }
 
@@ -166,6 +171,19 @@ namespace Renderer3D {
                 _isCursorLocked = true;
                 spdlog::info("Cursor locked!");
             }
+        }
+    }
+
+    void Renderer::RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const
+    {
+        switch (_controls->GetSceneMode())
+        {
+        case SceneMode::Day:
+            _scene->RenderDaySkyboxForwardRendering(view, projection);
+            break;
+        case SceneMode::Night:
+            _scene->RenderNightSkyboxForwardRendering(view, projection);
+            break;
         }
     }
 

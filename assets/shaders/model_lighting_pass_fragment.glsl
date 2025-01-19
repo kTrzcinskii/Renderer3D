@@ -18,6 +18,7 @@ uniform sampler2D gAlbedoSpec;
 uniform PointLight pointLights[MAX_NR_POINT_LIGHTS];
 uniform vec3 cameraPos;
 uniform int nrPointLights;
+uniform float ambientLevel;
 
 out vec4 FragColor;
 
@@ -31,7 +32,7 @@ void main()
 
     // Calculate lighting
     // Ambient
-    vec3 lighting = diffuse * 0.1;
+    vec3 lighting = diffuse * ambientLevel;
     vec3 cameraDir = normalize(cameraPos - fragPos);
     for (int i = 0; i < nrPointLights; i++)
     {

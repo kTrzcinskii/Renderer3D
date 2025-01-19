@@ -10,6 +10,7 @@
 
 #include "window.h"
 #include "camera.h"
+#include "controls.h"
 #include "deferred_shaderer.h"
 #include "scene.h"
 
@@ -35,12 +36,14 @@ namespace Renderer3D {
         Camera _freeMovingCamera;
         DeferredShaderer _deferredShader;
         std::unique_ptr<Scene> _scene = nullptr;
+        std::unique_ptr<Controls> _controls = nullptr;
 
         // Actions
         void ProcessWindowResize(int width, int height);
         void ProcessInput();
         void ProcessMouseMovement(double xPos, double yPos);
         void ProcessKeyCallback(int key, int action);
+        void RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const;
 
         // Window callbacks
         static void ResizeCallback(GLFWwindow* window, int width, int height);

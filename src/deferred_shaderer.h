@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 
 #include "shader.h"
+#include "controls.h"
 
 namespace Renderer3D {
 
@@ -23,6 +24,7 @@ namespace Renderer3D {
         void RenderQuad() const;
         [[nodiscard]] std::shared_ptr<Shader> GetGeometryPassShader() const;
         [[nodiscard]] std::shared_ptr<Shader> GetLightingPassShader() const;
+        void UpdateAmbientLevel(SceneMode sceneMode) const;
         ~DeferredShaderer();
     private:
         GLuint _gBuffer = 0;
@@ -37,6 +39,7 @@ namespace Renderer3D {
         bool _isMoved = false;
         std::shared_ptr<Shader> _geometryPassShader = nullptr;
         std::shared_ptr<Shader> _lightingPassShader = nullptr;
+
         // Helpers
         void CreatePositionBuffer(size_t width, size_t height);
         void CreateNormalBuffer(size_t width, size_t height);
@@ -45,6 +48,10 @@ namespace Renderer3D {
         void CheckFramebufferStatus() const;
         void SetupQuadData();
         void SetupLightingPassShader() const;
+
+        // Consts
+        static constexpr float AMBIENT_LEVEL_NIGHT = 0.1f;
+        static constexpr float AMBIENT_LEVEL_DAY = 0.6f;
     };
 
 } // Renderer3D

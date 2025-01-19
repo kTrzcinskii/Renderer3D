@@ -126,6 +126,18 @@ namespace Renderer3D {
         return _lightingPassShader;
     }
 
+    void DeferredShaderer::UpdateAmbientLevel(const SceneMode sceneMode) const
+    {
+        switch (sceneMode) {
+        case SceneMode::Day:
+            _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_DAY);
+            break;
+        case SceneMode::Night:
+            _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_NIGHT);
+            break;
+        }
+    }
+
     DeferredShaderer::~DeferredShaderer()
     {
         if (_isMoved)
