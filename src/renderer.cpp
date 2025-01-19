@@ -24,6 +24,7 @@ namespace Renderer3D {
         // Setup scene
         GeneratePointLightsForScene();
         SetupModelsForScene();
+        SetupSkyboxesForScene();
     }
 
     void Renderer::Render()
@@ -73,6 +74,9 @@ namespace Renderer3D {
 
             // Render point light sources using forward rendering
             _scene->RenderPointLightsForwardRendering(view, projection);
+
+            // Render skybox
+            _scene->RenderNightSkyboxForwardRendering(view, projection);
 
             // Double buffer and events
             _window.SwapBuffers();
@@ -212,5 +216,12 @@ namespace Renderer3D {
         farmHouse.UpdateScale(glm::vec3(0.2f, 0.2f, 0.2f));
         farmHouse.UpdateRotationY(-90.0f);
         _scene->AddEntity("farmHouse", farmHouse);
+    }
+
+    void Renderer::SetupSkyboxesForScene() const
+    {
+        const auto& skyboxShader = std::make_shared<Shader>("../assets/shaders/skybox_vertex.glsl", "../assets/shaders/skybox_fragment.glsl");
+        _scene->UpdateNightSkybox(std::make_unique<Skybox>("../assets/cubemaps/night/px.jpg", "../assets/cubemaps/night/nx.jpg", "../assets/cubemaps/night/py.jpg", "../assets/cubemaps/night/ny.jpg", "../assets/cubemaps/night/pz.jpg", "../assets/cubemaps/night/nz.jpg", skyboxShader));
+        _scene->UpdateDaySkybox(std::make_unique<Skybox>("../assets/cubemaps/day/Daylight Box_Right.bmp", "../assets/cubemaps/day/Daylight Box_Left.bmp", "../assets/cubemaps/day/Daylight Box_Top.bmp", "../assets/cubemaps/day/Daylight Box_Bottom.bmp", "../assets/cubemaps/day/Daylight Box_Front.bmp", "../assets/cubemaps/day/Daylight Box_Back.bmp", skyboxShader));
     }
 } // Renderer3D

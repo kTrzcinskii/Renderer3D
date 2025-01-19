@@ -9,7 +9,7 @@
 #include "model.h"
 
 namespace Renderer3D {
-    Model::Model(const fs::path& path, bool flipTextures)
+    Model::Model(const fs::path& path, const bool flipTextures)
     {
         stbi_set_flip_vertically_on_load(flipTextures);
         Assimp::Importer importer;

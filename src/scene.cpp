@@ -34,6 +34,16 @@ namespace Renderer3D {
         _pointLightsContainer = std::move(pointLightsContainer);
     }
 
+    void Scene::UpdateNightSkybox(std::unique_ptr<Skybox> skybox)
+    {
+        _nightSkybox = std::move(skybox);
+    }
+
+    void Scene::UpdateDaySkybox(std::unique_ptr<Skybox> skybox)
+    {
+        _daySkybox = std::move(skybox);
+    }
+
     void Scene::UpdateEntities(const float deltaTime)
     {
         for (auto& [name, func] : _updateEntityFunctions)
@@ -70,5 +80,25 @@ namespace Renderer3D {
     void Scene::RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection) const
     {
         _pointLightsContainer->RenderPointLights(view, projection);
+    }
+
+    void Scene::RenderNightSkyboxForwardRendering(const glm::mat4& view, const glm::mat4& projection) const
+    {
+        if (_nightSkybox == nullptr)
+        {
+            spdlog::error("Night skybox rendering not initialized");
+            return;
+        }
+        _nightSkybox->Draw(view, projection);
+    }
+
+    void Scene::RenderDaySkyboxForwardRendering(const glm::mat4& view, const glm::mat4& projection) const
+    {
+        if (_daySkybox == nullptr)
+        {
+            spdlog::error("Day skybox rendering not initialized");
+            return;
+        }
+        _daySkybox->Draw(view, projection);
     }
 } // Renderer3D

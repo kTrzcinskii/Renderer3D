@@ -45,6 +45,7 @@ namespace Renderer3D {
         // Helpers
         void GeneratePointLightsForScene() const;
         void SetupModelsForScene() const;
+        void SetupSkyboxesForScene() const;
 
         // Consts
         static constexpr size_t INITIAL_WIDTH = 1600;
