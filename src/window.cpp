@@ -5,12 +5,15 @@
 #include <spdlog/spdlog.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include "window.h"
 
 namespace Renderer3D {
     Window::Window(const size_t width, const size_t height) : _glfwWindow(nullptr, nullptr)
     {
+        glfwSetErrorCallback(glfwErrorCallback);
         if (glfwInit() == GLFW_FALSE)
         {
             spdlog::error("Failed to initialize glfw");
@@ -99,5 +102,16 @@ namespace Renderer3D {
     void Window::Close() const
     {
         glfwSetWindowShouldClose(_glfwWindow.get(), true);
+    }
+
+    void Window::InitImGuiBackend() const
+    {
+        ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
+        ImGui_ImplOpenGL3_Init("#version 330 core");
+    }
+
+    void Window::glfwErrorCallback(int error, const char* description)
+    {
+        spdlog::error("GLFW error {}: {}", error, description);
     }
 } // Renderer3D

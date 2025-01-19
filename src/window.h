@@ -24,8 +24,13 @@ namespace Renderer3D {
         void SetKeyCallback(GLFWkeyfun callback) const;
         [[nodiscard]] bool IsKeyPressed(int key) const;
         void Close() const;
+        void InitImGuiBackend() const;
     private:
         std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> _glfwWindow;
+
+        static void glfwErrorCallback(int error, const char* description);
+
+        // Consts
         static constexpr size_t INITIAL_WIDTH = 1600;
         static constexpr size_t INITIAL_HEIGHT = 800;
     };

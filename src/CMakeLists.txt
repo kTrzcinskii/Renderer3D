@@ -29,7 +29,9 @@ add_executable(Renderer3D
         floor.h
         skybox.cpp
         skybox.h
+        controls.cpp
+        controls.h
 )
 
 # Link libraries
-target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp spdlog::spdlog)
+target_link_libraries(Renderer3D PRIVATE glfw glad stb_image glm assimp spdlog::spdlog imgui)
