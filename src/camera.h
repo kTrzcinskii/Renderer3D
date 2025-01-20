@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "controls.h"
+
 namespace Renderer3D {
 
     enum class CameraMovementDirection
@@ -26,7 +28,6 @@ namespace Renderer3D {
         float yOffset;
     };
 
-    // TODO: add switching to orthogonal projection
     class Camera {
     public:
         Camera(float screenWidth, float screenHeight, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float near = Camera::DEFAULT_NEAR, float far = Camera::DEFAULT_FAR, float yaw = Camera::DEFAULT_YAW, float pitch = Camera::DEFAULT_PITCH);
@@ -41,6 +42,7 @@ namespace Renderer3D {
         void Rotate(RotateDiff diff, bool constraintPitch = true);
         void Zoom(float offset);
         void UpdateScreenSize(float screenWidth, float screenHeight);
+        void UpdateProjectionType(ProjectionType projectionType);
     private:
         // Camera attributes
         glm::vec3 _position{};
@@ -52,13 +54,17 @@ namespace Renderer3D {
         float _screenHeight;
         float _near;
         float _far;
+
         // Euler angles
         float _yaw;
         float _pitch;
+
         // Camera options
         float _movementSpeed;
         float _mouseSensitivity;
         float _zoom;
+        ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
+
         // Default values
         static constexpr float DEFAULT_NEAR = 0.1f;
         static constexpr float DEFAULT_FAR = 100.0f;
@@ -68,7 +74,11 @@ namespace Renderer3D {
         static constexpr float DEFAULT_SENSITIVITY = 0.1f;
         static constexpr float DEFAULT_ZOOM = 45.0f;
 
+        // Helpers
         void UpdateCameraVectors();
+
+        // Consts
+        static constexpr float ORTHO_FACTOR = 100.0f;
     };
 
 } // Renderer3D

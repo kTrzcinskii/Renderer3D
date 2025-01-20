@@ -53,7 +53,15 @@ namespace Renderer3D {
 
     glm::mat4 Camera::GetProjectionMatrix() const
     {
-        return glm::perspective(glm::radians(_zoom), _screenWidth / _screenHeight, _near, _far);
+        const auto aspect = _screenWidth / _screenHeight;
+        switch (_projectionType)
+        {
+        case ProjectionType::PERSPECTIVE:
+            return glm::perspective(glm::radians(_zoom), aspect, _near, _far);
+        case ProjectionType::ORTHOGRAPHIC:
+            return glm::ortho(-_screenWidth / ORTHO_FACTOR, _screenWidth / ORTHO_FACTOR, -_screenHeight / ORTHO_FACTOR, _screenHeight / ORTHO_FACTOR, _near, _far);
+        };
+        return glm::perspective(glm::radians(_zoom), aspect, _near, _far);
     }
 
     float Camera::GetFarZ() const
@@ -126,6 +134,11 @@ namespace Renderer3D {
     {
         _screenWidth = screenWidth;
         _screenHeight = screenHeight;
+    }
+
+    void Camera::UpdateProjectionType(const ProjectionType projectionType)
+    {
+        _projectionType = projectionType;
     }
 
     void Camera::UpdateCameraVectors()

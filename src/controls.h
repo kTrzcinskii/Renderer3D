@@ -16,6 +16,12 @@ namespace Renderer3D {
         Fog
     };
 
+    enum class ProjectionType
+    {
+        PERSPECTIVE,
+        ORTHOGRAPHIC
+    };
+
     class Controls {
     public:
         explicit Controls(const Window& window);
@@ -24,9 +30,12 @@ namespace Renderer3D {
         [[nodiscard]] SceneMode GetSceneMode() const;
         [[nodiscard]] float GetFogStrength() const;
         [[nodiscard]] bool IsFog() const;
+        [[nodiscard]] ProjectionType GetProjectionType() const;
+        [[nodiscard]] bool IsOrthographic() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;
+        ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
     };
 
 } // Renderer3D

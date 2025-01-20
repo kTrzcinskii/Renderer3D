@@ -47,6 +47,9 @@ namespace Renderer3D {
             // Handle input
             ProcessInput();
 
+            // Update camera mode
+            _freeMovingCamera.UpdateProjectionType(_controls->GetProjectionType());
+
             // Render
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,6 +180,11 @@ namespace Renderer3D {
 
     void Renderer::RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const
     {
+        // Skybox doesn't work well with orthographic projection
+        if (_controls->IsOrthographic())
+        {
+            return;
+        }
         switch (_controls->GetSceneMode())
         {
         case SceneMode::Day:

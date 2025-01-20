@@ -42,6 +42,18 @@ namespace Renderer3D {
         ImGui::Text("Press 'L' to lock/unlock cursor.");
         ImGui::Spacing();
 
+        // Projection type
+        ImGui::Spacing();
+        ImGui::Text("Projection type");
+        if (ImGui::RadioButton("Perspective", _projectionType == ProjectionType::PERSPECTIVE))
+        {
+            _projectionType = ProjectionType::PERSPECTIVE;
+        }
+        if (ImGui::RadioButton("Orthographic", _projectionType == ProjectionType::ORTHOGRAPHIC))
+        {
+            _projectionType = ProjectionType::ORTHOGRAPHIC;
+        }
+
         // Scene mode
         ImGui::Text("Scene mode:");
         if (ImGui::RadioButton("Day", _sceneMode == SceneMode::Day)) {
@@ -55,6 +67,7 @@ namespace Renderer3D {
         }
 
         // Fog strength
+        ImGui::Spacing();
         if (_sceneMode == SceneMode::Fog)
         {
             ImGui::SliderFloat("Fog strength", &_fogStrength, 0.0f, 99.0f, "%.0f");
@@ -79,5 +92,15 @@ namespace Renderer3D {
     bool Controls::IsFog() const
     {
         return _sceneMode == SceneMode::Fog;
+    }
+
+    ProjectionType Controls::GetProjectionType() const
+    {
+        return _projectionType;
+    }
+
+    bool Controls::IsOrthographic() const
+    {
+        return _projectionType == ProjectionType::ORTHOGRAPHIC;
     }
 } // Renderer3D
