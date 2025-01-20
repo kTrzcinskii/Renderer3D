@@ -9,7 +9,7 @@ struct PointLight {
 };
 
 const int MAX_NR_POINT_LIGHTS = 256;
-const vec4 FOG_COLOR = vec4(0.4, 0.4, 0.4, 1.0);
+const vec4 FOG_COLOR = vec4(0.8, 0.8, 0.8, 1.0);
 
 in vec2 TexCoords;
 

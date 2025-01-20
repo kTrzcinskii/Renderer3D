@@ -52,6 +52,7 @@ namespace Renderer3D {
 
         // Consts
         static constexpr float AMBIENT_LEVEL_NIGHT = 0.1f;
+        static constexpr float AMBIENT_LEVEL_FOG = 0.3f;
         static constexpr float AMBIENT_LEVEL_DAY = 0.6f;
     };
 

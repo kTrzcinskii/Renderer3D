@@ -1,6 +1,6 @@
 #version 330 core
 
-const vec4 FOG_COLOR = vec4(0.4, 0.4, 0.4, 1.0);
+const vec4 FOG_COLOR = vec4(0.8, 0.8, 0.8, 1.0);
 
 in vec3 fragPos;
 

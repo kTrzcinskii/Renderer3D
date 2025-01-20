@@ -138,7 +138,7 @@ namespace Renderer3D {
             _lightingPassShader->SetUniform("useFog", false);
             break;
         case SceneMode::Fog:
-            _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_DAY);
+            _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_FOG);
             _lightingPassShader->SetUniform("useFog", true);
             break;
         }
