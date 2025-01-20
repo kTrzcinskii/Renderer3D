@@ -110,28 +110,41 @@ namespace Renderer3D {
             _window.Close();
         }
 
+        // Camera movement
         if (_window.IsKeyPressed(GLFW_KEY_W))
         {
-            spdlog::info("Key 'W' pressed!");
+            spdlog::info("Moving camera forward");
             _freeMovingCamera.Move(CameraMovementDirection::FORWARD, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_S))
         {
-            spdlog::info("Key 'S' pressed!");
+            spdlog::info("Moving camera backward");
             _freeMovingCamera.Move(CameraMovementDirection::BACKWARD, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_A))
         {
-            spdlog::info("Key 'A' pressed!");
+            spdlog::info("Moving camera left");
             _freeMovingCamera.Move(CameraMovementDirection::LEFT, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_D))
         {
-            spdlog::info("Key 'D' pressed!");
+            spdlog::info("Moving camera right");
             _freeMovingCamera.Move(CameraMovementDirection::RIGHT, _deltaTime);
+        }
+
+        if (_window.IsKeyPressed(GLFW_KEY_SPACE))
+        {
+            spdlog::info("Moving camera up");
+            _freeMovingCamera.Move(CameraMovementDirection::UP, _deltaTime);
+        }
+
+        if (_window.IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+        {
+            spdlog::info("Moving camera down");
+            _freeMovingCamera.Move(CameraMovementDirection::DOWN, _deltaTime);
         }
     }
 
