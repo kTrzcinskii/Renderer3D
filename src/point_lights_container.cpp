@@ -61,19 +61,22 @@ namespace Renderer3D {
         }
     }
 
-    void PointLightsContainer::RenderPointLights(const glm::mat4& view, const glm::mat4& projection) const
+    void PointLightsContainer::RenderPointLights(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos, const bool useFog, const float fogStrength, const float cameraFarZ) const
     {
         // Render light sources using forward rendering
         _pointLightSourceShader->Activate();
         _pointLightSourceShader->SetUniform("view", view);
         _pointLightSourceShader->SetUniform("projection", projection);
-        for (size_t i = 0; i < _pointLights.size(); i++)
+        _pointLightSourceShader->SetUniform("cameraPos", cameraPos);
+        _pointLightSourceShader->SetUniform("useFog", useFog);
+        _pointLightSourceShader->SetUniform("fogMaxDist", cameraFarZ - fogStrength);
+        for (const auto & _pointLight : _pointLights)
         {
             auto model = glm::mat4(1.0f);
-            model = glm::translate(model, _pointLights[i].GetPosition());
+            model = glm::translate(model, _pointLight.GetPosition());
             model = glm::scale(model, glm::vec3(0.125f));
             _pointLightSourceShader->SetUniform("model", model);
-            _pointLightSourceShader->SetUniform("lightColor", _pointLights[i].GetColor());
+            _pointLightSourceShader->SetUniform("lightColor", _pointLight.GetColor());
             RenderSphere();
         }
     }
@@ -94,11 +97,11 @@ namespace Renderer3D {
         {
             for (unsigned int x = 0; x <= PointLightsContainer::X_SEGMENTS; ++x)
             {
-                float xSegment = static_cast<float>(x) / PointLightsContainer::X_SEGMENTS;
-                float ySegment = static_cast<float>(y) / PointLightsContainer::Y_SEGMENTS;
-                float xPos = std::cos(xSegment * 2.0f * std::numbers::pi) * std::sin(ySegment * std::numbers::pi);
-                float yPos = std::cos(ySegment * std::numbers::pi);
-                float zPos = std::sin(xSegment * 2.0f * std::numbers::pi) * std::sin(ySegment * std::numbers::pi);
+                const auto xSegment = static_cast<float>(x) / PointLightsContainer::X_SEGMENTS;
+                const auto ySegment = static_cast<float>(y) / PointLightsContainer::Y_SEGMENTS;
+                const auto xPos = static_cast<float>(std::cos(xSegment * 2.0f * std::numbers::pi) * std::sin(ySegment * std::numbers::pi));
+                const auto yPos = static_cast<float>(std::cos(ySegment * std::numbers::pi));
+                const auto zPos = static_cast<float>(std::sin(xSegment * 2.0f * std::numbers::pi) * std::sin(ySegment * std::numbers::pi));
 
                 // Vertex position
                 _sphereVertices.push_back(xPos);

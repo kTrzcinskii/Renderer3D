@@ -9,6 +9,7 @@ struct PointLight {
 };
 
 const int MAX_NR_POINT_LIGHTS = 256;
+const vec4 FOG_COLOR = vec4(0.4, 0.4, 0.4, 1.0);
 
 in vec2 TexCoords;
 
@@ -24,8 +25,6 @@ uniform bool useFog;
 
 out vec4 FragColor;
 
-const vec4 fogColor = vec4(0.4, 0.4, 0.4, 1.0);
-
 void main()
 {
 
@@ -38,7 +37,7 @@ void main()
     // In case when we use fog, we don't have any skybox - we just want the whole sky to have color of the fog
     if (normal == vec3(0,0,0) && useFog)
     {
-        FragColor = fogColor;
+        FragColor = FOG_COLOR;
         return;
     }
 
@@ -75,7 +74,7 @@ void main()
         float fogFactor = (fogMaxDist - dist) /
         (fogMaxDist - fogMinDist);
         fogFactor = clamp(fogFactor, 0.0, 1.0);
-        FragColor = mix(fogColor, colorWithLight, fogFactor);
+        FragColor = mix(FOG_COLOR, colorWithLight, fogFactor);
     }
     else
     {

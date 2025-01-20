@@ -79,8 +79,7 @@ namespace Renderer3D {
             _deferredShader.CopyDepthBufferToDefaultBuffer();
 
             // Render additional effects using forward rendering
-            // TODO: add fog related logic to point lights source shader
-            _scene->RenderPointLightsForwardRendering(view, projection);
+            _scene->RenderPointLightsForwardRendering(view, projection, _freeMovingCamera.GetPosition(), _controls->IsFog(), _controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
             RenderSkybox(view, projection);
 
             _window.PollEvents();

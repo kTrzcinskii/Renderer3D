@@ -23,6 +23,7 @@ namespace Renderer3D {
         void Draw();
         [[nodiscard]] SceneMode GetSceneMode() const;
         [[nodiscard]] float GetFogStrength() const;
+        [[nodiscard]] bool IsFog() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;

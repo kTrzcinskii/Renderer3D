@@ -27,7 +27,7 @@ namespace Renderer3D {
         void UpdateEntities(float deltaTime);
         void RenderEntitiesToGeometryPass(const std::shared_ptr<Shader>& geometryPassShader, const glm::mat4& view, const glm::mat4& projection) const;
         void SetLightingPassShaderData(const std::shared_ptr<Shader>& lightingPassShader) const;
-        void RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection) const;
+        void RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos, bool useFog, float fogStrength, float cameraFarZ) const;
         void RenderNightSkyboxForwardRendering(const glm::mat4& view, const glm::mat4& projection) const;
         void RenderDaySkyboxForwardRendering(const glm::mat4& view, const glm::mat4& projection) const;
     private:

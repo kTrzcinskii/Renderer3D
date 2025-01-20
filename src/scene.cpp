@@ -77,9 +77,9 @@ namespace Renderer3D {
         _pointLightsContainer->SetLightingPassPointLightsData(lightingPassShader);
     }
 
-    void Scene::RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection) const
+    void Scene::RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos, const bool useFog, const float fogStrength, const float cameraFarZ) const
     {
-        _pointLightsContainer->RenderPointLights(view, projection);
+        _pointLightsContainer->RenderPointLights(view, projection, cameraPos, useFog, fogStrength, cameraFarZ);
     }
 
     void Scene::RenderNightSkyboxForwardRendering(const glm::mat4& view, const glm::mat4& projection) const

@@ -75,4 +75,9 @@ namespace Renderer3D {
     {
         return _fogStrength;
     }
+
+    bool Controls::IsFog() const
+    {
+        return _sceneMode == SceneMode::Fog;
+    }
 } // Renderer3D

@@ -8,7 +8,11 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+out vec3 fragPos;
+
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    vec4 wordlPos = model * vec4(aPos, 1.0);
+    gl_Position = projection * view * wordlPos;
+    fragPos = wordlPos.xyz;
 }
