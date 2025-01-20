@@ -69,7 +69,8 @@ namespace Renderer3D {
             _deferredShader.BindGTextures();
             _scene->SetLightingPassShaderData(_deferredShader.GetLightingPassShader());
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
-            _deferredShader.UpdateAmbientLevel(_controls->GetSceneMode());
+            _deferredShader.UpdateSceneMode(_controls->GetSceneMode());
+            _deferredShader.UpdateFogStrength(_controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
 
             // Render quad with proper lighting from previous step
             _deferredShader.RenderQuad();
@@ -78,6 +79,7 @@ namespace Renderer3D {
             _deferredShader.CopyDepthBufferToDefaultBuffer();
 
             // Render additional effects using forward rendering
+            // TODO: add fog related logic to point lights source shader
             _scene->RenderPointLightsForwardRendering(view, projection);
             RenderSkybox(view, projection);
 
@@ -183,6 +185,9 @@ namespace Renderer3D {
             break;
         case SceneMode::Night:
             _scene->RenderNightSkyboxForwardRendering(view, projection);
+            break;
+        case SceneMode::Fog:
+            // Do nothing - we create "skybox" in shader
             break;
         }
     }

@@ -19,16 +19,28 @@ uniform PointLight pointLights[MAX_NR_POINT_LIGHTS];
 uniform vec3 cameraPos;
 uniform int nrPointLights;
 uniform float ambientLevel;
+uniform float fogMaxDist;
+uniform bool useFog;
 
 out vec4 FragColor;
 
+const vec4 fogColor = vec4(0.4, 0.4, 0.4, 1.0);
+
 void main()
 {
+
     // Get data from gbuffer
     vec3 fragPos = texture(gPosition, TexCoords).rgb;
     vec3 normal = texture(gNormal, TexCoords).rgb;
     vec3 diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float specular = texture(gAlbedoSpec, TexCoords).a;
+
+    // In case when we use fog, we don't have any skybox - we just want the whole sky to have color of the fog
+    if (normal == vec3(0,0,0) && useFog)
+    {
+        FragColor = fogColor;
+        return;
+    }
 
     // Calculate lighting
     // Ambient
@@ -53,5 +65,20 @@ void main()
             lighting += (diffuse + specular);
         }
     }
-    FragColor = vec4(lighting, 1.0);
+    vec4 colorWithLight = vec4(lighting, 1.0);
+
+    if (useFog)
+    {
+        // Fog effect
+        float fogMinDist = 0.1;
+        float dist = length(fragPos - cameraPos);
+        float fogFactor = (fogMaxDist - dist) /
+        (fogMaxDist - fogMinDist);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        FragColor = mix(fogColor, colorWithLight, fogFactor);
+    }
+    else
+    {
+        FragColor = colorWithLight;
+    }
 }

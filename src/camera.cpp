@@ -56,6 +56,11 @@ namespace Renderer3D {
         return glm::perspective(glm::radians(_zoom), _screenWidth / _screenHeight, _near, _far);
     }
 
+    float Camera::GetFarZ() const
+    {
+        return _far;
+    }
+
     void Camera::Move(const CameraMovementDirection direction, const float deltaTime)
     {
         const auto velocity = _movementSpeed * deltaTime;

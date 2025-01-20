@@ -50,6 +50,15 @@ namespace Renderer3D {
         if (ImGui::RadioButton("Night", _sceneMode == SceneMode::Night)) {
             _sceneMode = SceneMode::Night;
         }
+        if (ImGui::RadioButton("Fog", _sceneMode == SceneMode::Fog)) {
+            _sceneMode = SceneMode::Fog;
+        }
+
+        // Fog strength
+        if (_sceneMode == SceneMode::Fog)
+        {
+            ImGui::SliderFloat("Fog strength", &_fogStrength, 0.0f, 99.0f, "%.0f");
+        }
 
         ImGui::End();
 
@@ -60,5 +69,10 @@ namespace Renderer3D {
     SceneMode Controls::GetSceneMode() const
     {
         return _sceneMode;
+    }
+
+    float Controls::GetFogStrength() const
+    {
+        return _fogStrength;
     }
 } // Renderer3D

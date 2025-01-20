@@ -12,7 +12,8 @@ namespace Renderer3D {
     enum class SceneMode
     {
         Day,
-        Night
+        Night,
+        Fog
     };
 
     class Controls {
@@ -21,8 +22,10 @@ namespace Renderer3D {
         ~Controls();
         void Draw();
         [[nodiscard]] SceneMode GetSceneMode() const;
+        [[nodiscard]] float GetFogStrength() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
+        float _fogStrength = 0.0f;
     };
 
 } // Renderer3D

@@ -24,7 +24,8 @@ namespace Renderer3D {
         void RenderQuad() const;
         [[nodiscard]] std::shared_ptr<Shader> GetGeometryPassShader() const;
         [[nodiscard]] std::shared_ptr<Shader> GetLightingPassShader() const;
-        void UpdateAmbientLevel(SceneMode sceneMode) const;
+        void UpdateSceneMode(SceneMode sceneMode) const;
+        void UpdateFogStrength(float fogStrength, float cameraFar) const;
         ~DeferredShaderer();
     private:
         GLuint _gBuffer = 0;

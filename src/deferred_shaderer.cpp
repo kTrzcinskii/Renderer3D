@@ -126,16 +126,27 @@ namespace Renderer3D {
         return _lightingPassShader;
     }
 
-    void DeferredShaderer::UpdateAmbientLevel(const SceneMode sceneMode) const
+    void DeferredShaderer::UpdateSceneMode(const SceneMode sceneMode) const
     {
         switch (sceneMode) {
         case SceneMode::Day:
             _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_DAY);
+            _lightingPassShader->SetUniform("useFog", false);
             break;
         case SceneMode::Night:
             _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_NIGHT);
+            _lightingPassShader->SetUniform("useFog", false);
+            break;
+        case SceneMode::Fog:
+            _lightingPassShader->SetUniform("ambientLevel", AMBIENT_LEVEL_DAY);
+            _lightingPassShader->SetUniform("useFog", true);
             break;
         }
+    }
+
+    void DeferredShaderer::UpdateFogStrength(const float fogStrength, const float cameraFar) const
+    {
+        _lightingPassShader->SetUniform("fogMaxDist", cameraFar - fogStrength);
     }
 
     DeferredShaderer::~DeferredShaderer()
