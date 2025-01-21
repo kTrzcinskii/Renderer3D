@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "controls.h"
 #include "deferred_shaderer.h"
+#include "models_manager.h"
 #include "scene.h"
 
 namespace Renderer3D {
@@ -37,6 +38,7 @@ namespace Renderer3D {
         DeferredShaderer _deferredShader;
         std::unique_ptr<Scene> _scene = nullptr;
         std::unique_ptr<Controls> _controls = nullptr;
+        std::unique_ptr<ModelsManager> _modelsManager = std::make_unique<ModelsManager>();
 
         // Actions
         void ProcessWindowResize(int width, int height);

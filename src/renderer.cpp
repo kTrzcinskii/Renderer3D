@@ -271,26 +271,154 @@ namespace Renderer3D {
 
     void Renderer::SetupModelsForScene() const
     {
-        Entity backpack("../assets/models/backpack/backpack.obj", true);
+        _modelsManager->AddModel("backpack", std::make_shared<Model>("../assets/models/backpack/backpack.obj", true));
+        _modelsManager->AddModel("ufo", std::make_shared<Model>("../assets/models/ufo/Low_poly_UFO.obj"));
+        _modelsManager->AddModel("cottage", std::make_shared<Model>("../assets/models/cottage/Cottage_FREE.obj"));
+        _modelsManager->AddModel("farmHouse", std::make_shared<Model>("../assets/models/farm_house/farmhouse_obj.obj"));
+
+        Entity backpack(_modelsManager->GetModel("backpack"));
         backpack.UpdatePosition(glm::vec3(0.0f, 2.0f, -3.0f));
         backpack.UpdateScale(glm::vec3(0.8f, 0.8f, 0.8f));
         _scene->AddEntity("backpack", backpack);
 
-        Entity ufo("../assets/models/ufo/Low_poly_UFO.obj");
-        ufo.UpdatePosition(glm::vec3(5.0f, 3.5f, 4.0f));
-        ufo.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
-        _scene->AddEntity("ufo", ufo);
-        _scene->AddEntityUpdateFunction("ufo", [](Entity& entity, const float deltaTime)
+        Entity ufo1(_modelsManager->GetModel("ufo"));
+        ufo1.UpdatePosition(glm::vec3(5.0f, 5.5f, 4.0f));
+        ufo1.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+        _scene->AddEntity("ufo1", ufo1);
+        _scene->AddEntityUpdateFunction("ufo1", [](Entity& entity, const float deltaTime)
         {
+            static bool goForward = true;
+
+            // Rotation
             entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
+
+            // Move around
+            auto position = entity.GetPosition();
+            if (goForward)
+            {
+                position.z += deltaTime * 4.0f;
+                position.x -= deltaTime * 4.0f;
+            } else
+            {
+                position.z -= deltaTime * 4.0f;
+                position.x += deltaTime * 4.0f;
+            }
+
+            if (position.z > 10.0f && position.x < -10.0f)
+            {
+                goForward = false;
+            } else if (position.z < -10.0f && position.x > 10.0f)
+            {
+                goForward = true;
+            }
+
+            entity.UpdatePosition(position);
         });
 
-        Entity cottage("../assets/models/cottage/Cottage_FREE.obj");
+        Entity ufo2(_modelsManager->GetModel("ufo"));
+        ufo2.UpdatePosition(glm::vec3(-12.0f, 4.5f, 8.0f));
+        ufo2.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+        _scene->AddEntity("ufo2", ufo2);
+        _scene->AddEntityUpdateFunction("ufo2", [](Entity& entity, const float deltaTime)
+        {
+            static bool goForward = true;
+
+            // Rotation
+            entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
+
+            // Move around
+            auto position = entity.GetPosition();
+            if (goForward)
+            {
+                position.z += deltaTime * 4.0f;
+                position.x += deltaTime * 4.0f;
+            } else
+            {
+                position.z -= deltaTime * 4.0f;
+                position.x -= deltaTime * 4.0f;
+            }
+
+            if (position.z > 10.0f && position.x >10.0f)
+            {
+                goForward = false;
+            } else if (position.z < -10.0f && position.x < -10.0f)
+            {
+                goForward = true;
+            }
+
+            entity.UpdatePosition(position);
+        });
+
+        Entity ufo3(_modelsManager->GetModel("ufo"));
+        ufo3.UpdatePosition(glm::vec3(15.0f, 5.0f, 6.0f));
+        ufo3.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+        _scene->AddEntity("ufo3", ufo3);
+        _scene->AddEntityUpdateFunction("ufo3", [](Entity& entity, const float deltaTime)
+        {
+            static bool goForward = true;
+
+            // Rotation
+            entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
+
+            // Move around
+            auto position = entity.GetPosition();
+            if (goForward)
+            {
+                position.z += deltaTime * 4.0f;
+            } else
+            {
+                position.z -= deltaTime * 4.0f;
+            }
+
+            if (position.z > 10.0f)
+            {
+                goForward = false;
+            } else if (position.z < -10.0f)
+            {
+                goForward = true;
+            }
+
+            entity.UpdatePosition(position);
+        });
+
+        Entity ufo4(_modelsManager->GetModel("ufo"));
+        ufo4.UpdatePosition(glm::vec3(-8.0f, 4.0f, -13.0f));
+        ufo4.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
+        _scene->AddEntity("ufo4", ufo4);
+        _scene->AddEntityUpdateFunction("ufo4", [](Entity& entity, const float deltaTime)
+        {
+            static bool goForward = true;
+
+            // Rotation
+            entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
+
+            // Move around
+            auto position = entity.GetPosition();
+            if (goForward)
+            {
+                position.x += deltaTime * 4.0f;
+            } else
+            {
+                position.x -= deltaTime * 4.0f;
+            }
+
+            if (position.x > 10.0f)
+            {
+                goForward = false;
+            } else if (position.x < -10.0f)
+            {
+                goForward = true;
+            }
+
+            entity.UpdatePosition(position);
+        });
+
+        Entity cottage(_modelsManager->GetModel("cottage"));
         cottage.UpdatePosition(glm::vec3(14.0f, 0.0f, 2.0f));
         cottage.UpdateRotationY(90.0f);
         _scene->AddEntity("cottage", cottage);
 
-        Entity farmHouse("../assets/models/farm_house/farmhouse_obj.obj");
+        Entity farmHouse(_modelsManager->GetModel("farmHouse"));
         farmHouse.UpdatePosition(glm::vec3(-8.0f, 0.0f, 2.0f));
         farmHouse.UpdateScale(glm::vec3(0.2f, 0.2f, 0.2f));
         farmHouse.UpdateRotationY(-90.0f);
