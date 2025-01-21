@@ -8,8 +8,19 @@ struct PointLight {
     float radius;
 };
 
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
+    float linear;
+    float quadratic;
+};
+
 const int MAX_NR_POINT_LIGHTS = 256;
 const vec4 FOG_COLOR = vec4(0.8, 0.8, 0.8, 1.0);
+const int MAX_NR_SPOT_LIGHTS = 16;
+const vec3 SPOTLIGHT_COLOR = vec3(1.0, 1.0, 1.0);
 
 in vec2 TexCoords;
 
@@ -22,12 +33,19 @@ uniform int nrPointLights;
 uniform float ambientLevel;
 uniform float fogMaxDist;
 uniform bool useFog;
+uniform SpotLight spotLights[MAX_NR_POINT_LIGHTS];
+uniform int nrSpotLights;
 
 out vec4 FragColor;
 
+// Helpers
+vec3 calculatAmbientColor(vec3 diffuseColor, float ambientLevel);
+vec3 calculatePointLightsColor(vec3 fragPos, vec3 normal, vec3 diffuse, float specular, vec3 cameraDir, PointLight pointLight);
+vec3 calculateSpotlightColor(vec3 fragPos, vec3 normal, vec3 diffuse, float specular, vec3 cameraDir, SpotLight spotlight);
+vec4 applyFogEffect(vec4 finalColor, vec3 fragPos, vec3 cameraPos, float fogMaxDist);
+
 void main()
 {
-
     // Get data from gbuffer
     vec3 fragPos = texture(gPosition, TexCoords).rgb;
     vec3 normal = texture(gNormal, TexCoords).rgb;
@@ -41,43 +59,93 @@ void main()
         return;
     }
 
-    // Calculate lighting
-    // Ambient
-    vec3 lighting = diffuse * ambientLevel;
     vec3 cameraDir = normalize(cameraPos - fragPos);
+
+    // Calculate lighting effect
+    vec3 ambientColor = calculatAmbientColor(diffuse, ambientLevel);
+
+    // Pointlights
+    vec3 pointLightsColor = vec3(0.0, 0.0, 0.0);
     for (int i = 0; i < nrPointLights; i++)
     {
-        float distance = length(pointLights[i].position - fragPos);
-        if (distance < pointLights[i].radius)
-        {
-            // Diffuse
-            vec3 lightDir = normalize(pointLights[i].position - fragPos);
-            vec3 diffuse = max(dot(normal, lightDir), 0.0) * diffuse * pointLights[i].color;
-            // Specular
-            vec3 halfwayDir = normalize(lightDir + cameraDir);
-            float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-            vec3 specular = spec * specular * pointLights[i].color;
-            // Attenuation
-            float attenuation = 1.0 / (1.0 + pointLights[i].linear * distance + pointLights[i].quadratic * distance * distance);
-            diffuse *= attenuation;
-            specular *= attenuation;
-            lighting += (diffuse + specular);
-        }
+        pointLightsColor += calculatePointLightsColor(fragPos, normal, diffuse, specular, cameraDir, pointLights[i]);
     }
-    vec4 colorWithLight = vec4(lighting, 1.0);
+
+    // Spotlights
+    vec3 spotlightsColor = vec3(0.0, 0.0, 0.0);
+    for (int i = 0; i < nrSpotLights; i++)
+    {
+        spotlightsColor += calculateSpotlightColor(fragPos, normal, diffuse, specular, cameraDir, spotLights[i]);
+    }
+
+    // Combine all lights
+    vec4 finalColor = vec4(ambientColor + pointLightsColor + spotlightsColor, 1.0);
 
     if (useFog)
     {
-        // Fog effect
-        float fogMinDist = 0.1;
-        float dist = length(fragPos - cameraPos);
-        float fogFactor = (fogMaxDist - dist) /
-        (fogMaxDist - fogMinDist);
-        fogFactor = clamp(fogFactor, 0.0, 1.0);
-        FragColor = mix(FOG_COLOR, colorWithLight, fogFactor);
+        FragColor = applyFogEffect(finalColor, fragPos, cameraPos, fogMaxDist);
     }
     else
     {
-        FragColor = colorWithLight;
+        FragColor = finalColor;
     }
+}
+
+vec3 calculatAmbientColor(vec3 diffuseColor, float ambientLevel)
+{
+    return diffuseColor * ambientLevel;
+}
+
+vec3 calculatePointLightsColor(vec3 fragPos, vec3 normal, vec3 diffuse, float specular, vec3 cameraDir, PointLight pointLight)
+{
+    vec3 pointLightsColor = vec3(0.0, 0.0, 0.0);
+    float dist = length(pointLight.position - fragPos);
+    if (dist < pointLight.radius)
+    {
+        // Diffuse
+        vec3 lightDir = normalize(pointLight.position - fragPos);
+        vec3 diffuseCol = max(dot(normal, lightDir), 0.0) * diffuse * pointLight.color;
+        // Specular
+        vec3 halfwayDir = normalize(lightDir + cameraDir);
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+        vec3 specularCol = spec * specular * pointLight.color;
+        // Attenuation
+        float attenuation = 1.0 / (1.0 + pointLight.linear * dist + pointLight.quadratic * dist * dist);
+        // Result
+        diffuseCol *= attenuation;
+        specularCol *= attenuation;
+        pointLightsColor += (diffuseCol + specularCol);
+    }
+    return pointLightsColor;
+}
+
+vec3 calculateSpotlightColor(vec3 fragPos, vec3 normal, vec3 diffuse, float specular, vec3 cameraDir, SpotLight spotlight)
+{
+    float dist = length(spotlight.position - fragPos);
+    // Diffuse
+    vec3 lightDir = normalize(spotlight.position - fragPos);
+    vec3 diffuseCol = max(dot(normal, lightDir), 0.0) * diffuse * SPOTLIGHT_COLOR;
+    // Specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(cameraDir, reflectDir), 0.0), 32.0);
+    vec3 specularCol = spec * specular * SPOTLIGHT_COLOR;
+    // Attenuation
+    float attenuation = 1.0 / (1.0 + spotlight.linear * dist + spotlight.quadratic * dist * dist);
+    // Intensity
+    float theta = dot(lightDir, normalize(-spotlight.direction));
+    float epsilon = spotlight.cutOff - spotlight.outerCutOff;
+    float intensity = clamp((theta - spotlight.outerCutOff) / epsilon, 0.0, 1.0);
+    diffuseCol *= (attenuation * intensity);
+    specularCol *= (attenuation * intensity);
+    return diffuseCol + specularCol;
+}
+
+vec4 applyFogEffect(vec4 finalColor, vec3 fragPos, vec3 cameraPos, float fogMaxDist)
+{
+    float fogMinDist = 0.1;
+    float dist = length(fragPos - cameraPos);
+    float fogFactor = (fogMaxDist - dist) /
+    (fogMaxDist - fogMinDist);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+    return mix(FOG_COLOR, finalColor, fogFactor);
 }

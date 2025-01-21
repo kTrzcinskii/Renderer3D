@@ -37,6 +37,14 @@ namespace Renderer3D {
 
         _window.LockCursor();
 
+        // TODO: remove
+        _deferredShader.GetLightingPassShader()->Activate();
+        _deferredShader.GetLightingPassShader()->SetUniform("nrSpotLights", 1);
+        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
+        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].linear", 0.09f);
+        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].quadratic", 0.032f);
+
         while (!_window.ShouldClose())
         {
             // Delta time
@@ -74,6 +82,9 @@ namespace Renderer3D {
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
             _deferredShader.UpdateSceneMode(_controls->GetSceneMode());
             _deferredShader.UpdateFogStrength(_controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
+            // TODO: remove
+            _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].position", _freeMovingCamera.GetPosition());
+            _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].direction", _freeMovingCamera.GetFront());
 
             // Render quad with proper lighting from previous step
             _deferredShader.RenderQuad();

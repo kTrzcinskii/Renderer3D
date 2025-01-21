@@ -37,6 +37,7 @@ namespace Renderer3D {
         [[nodiscard]] glm::mat4 GetViewMatrix() const;
         [[nodiscard]] glm::mat4 GetProjectionMatrix() const;
         [[nodiscard]] float GetFarZ() const;
+        [[nodiscard]] glm::vec3 GetFront() const;
         // Actions
         void Move(CameraMovementDirection direction, float deltaTime);
         void Rotate(RotateDiff diff, bool constraintPitch = true);

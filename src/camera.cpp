@@ -69,6 +69,11 @@ namespace Renderer3D {
         return _far;
     }
 
+    glm::vec3 Camera::GetFront() const
+    {
+        return _front;
+    }
+
     void Camera::Move(const CameraMovementDirection direction, const float deltaTime)
     {
         const auto velocity = _movementSpeed * deltaTime;
