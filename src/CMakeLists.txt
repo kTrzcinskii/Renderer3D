@@ -31,6 +31,8 @@ add_executable(Renderer3D
         skybox.h
         controls.cpp
         controls.h
+        models_manager.cpp
+        models_manager.h
 )
 
 # Link libraries
