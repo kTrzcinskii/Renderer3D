@@ -112,10 +112,6 @@ namespace Renderer3D {
                 _sphereVertices.push_back(xPos);
                 _sphereVertices.push_back(yPos);
                 _sphereVertices.push_back(zPos);
-
-                // Texture coordinates
-                _sphereVertices.push_back(xSegment);
-                _sphereVertices.push_back(ySegment);
             }
         }
 
@@ -161,11 +157,9 @@ namespace Renderer3D {
 
         // Setup attrib pointers
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 
         // Cleanup
         glBindBuffer(GL_ARRAY_BUFFER, 0);
