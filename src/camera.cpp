@@ -98,6 +98,10 @@ namespace Renderer3D {
             _position -= _up * velocity;
             break;
         }
+        if (_flashlight != nullptr)
+        {
+            _flashlight->UpdatePosition(_position);
+        }
     }
 
     void Camera::Rotate(const RotateDiff diff, const bool constraintPitch)
@@ -146,6 +150,33 @@ namespace Renderer3D {
         _projectionType = projectionType;
     }
 
+    void Camera::CreateFlashlight(SpotLightsFactory& spotLightsFactory)
+    {
+        _flashlight = std::make_unique<SpotLightSource>(spotLightsFactory.CreateSpotlight(_position, _front, 12.5f, 17.5f));
+        UpdateUseFlashlight(false);
+    }
+
+    void Camera::SetFlashlightUniforms(const std::shared_ptr<Shader>& lightingPassShader) const
+    {
+        if (_flashlight == nullptr)
+        {
+            return;
+        }
+        _flashlight->SetUniforms(lightingPassShader);
+    }
+
+    void Camera::UpdateUseFlashlight(const bool useFlashlight) const
+    {
+        if (useFlashlight)
+        {
+            _flashlight->Activate();
+        }
+        else
+        {
+            _flashlight->Deactivate();
+        }
+    }
+
     void Camera::UpdateCameraVectors()
     {
         glm::vec3 front;
@@ -156,5 +187,9 @@ namespace Renderer3D {
         _right = glm::normalize(glm::cross(_front, _worldUp));
         _up = glm::normalize(glm::cross(_right, _front));
         spdlog::info("Updating camera vectors");
+        if (_flashlight != nullptr)
+        {
+            _flashlight->UpdateDirection(_front);
+        }
     }
 } // Renderer3D

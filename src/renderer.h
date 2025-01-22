@@ -36,6 +36,7 @@ namespace Renderer3D {
         Window _window;
         Camera _freeMovingCamera;
         DeferredShaderer _deferredShader;
+        SpotLightsFactory _spotLightsFactory = SpotLightsFactory();
         std::unique_ptr<Scene> _scene = nullptr;
         std::unique_ptr<Controls> _controls = nullptr;
         std::unique_ptr<ModelsManager> _modelsManager = std::make_unique<ModelsManager>();

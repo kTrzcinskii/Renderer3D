@@ -54,7 +54,13 @@ namespace Renderer3D {
             _projectionType = ProjectionType::ORTHOGRAPHIC;
         }
 
+        // Camera flashlight
+        ImGui::Spacing();
+        ImGui::Text("Camera flashlight");
+        ImGui::Checkbox("Enable", &_useCameraFlashlight);
+
         // Scene mode
+        ImGui::Spacing();
         ImGui::Text("Scene mode:");
         if (ImGui::RadioButton("Day", _sceneMode == SceneMode::Day)) {
             _sceneMode = SceneMode::Day;
@@ -102,5 +108,10 @@ namespace Renderer3D {
     bool Controls::IsOrthographic() const
     {
         return _projectionType == ProjectionType::ORTHOGRAPHIC;
+    }
+
+    float Controls::GetUseCameraFlashlight() const
+    {
+        return _useCameraFlashlight;
     }
 } // Renderer3D

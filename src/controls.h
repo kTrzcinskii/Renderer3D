@@ -32,10 +32,12 @@ namespace Renderer3D {
         [[nodiscard]] bool IsFog() const;
         [[nodiscard]] ProjectionType GetProjectionType() const;
         [[nodiscard]] bool IsOrthographic() const;
+        [[nodiscard]] float GetUseCameraFlashlight() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;
         ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
+        bool _useCameraFlashlight;
     };
 
 } // Renderer3D

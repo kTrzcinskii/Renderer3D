@@ -5,10 +5,13 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "controls.h"
+#include "spot_lights_factory.h"
 
 namespace Renderer3D {
 
@@ -44,6 +47,9 @@ namespace Renderer3D {
         void Zoom(float offset);
         void UpdateScreenSize(float screenWidth, float screenHeight);
         void UpdateProjectionType(ProjectionType projectionType);
+        void CreateFlashlight(SpotLightsFactory& spotLightsFactory);
+        void SetFlashlightUniforms(const std::shared_ptr<Shader>& lightingPassShader) const;
+        void UpdateUseFlashlight(bool useFlashlight) const;
     private:
         // Camera attributes
         glm::vec3 _position{};
@@ -65,6 +71,9 @@ namespace Renderer3D {
         float _mouseSensitivity;
         float _zoom;
         ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
+
+        // Attach objects
+        std::unique_ptr<SpotLightSource> _flashlight = nullptr;
 
         // Default values
         static constexpr float DEFAULT_NEAR = 0.1f;

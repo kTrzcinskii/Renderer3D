@@ -29,6 +29,9 @@ namespace Renderer3D {
         GeneratePointLightsForScene();
         SetupModelsForScene();
         SetupSkyboxesForScene();
+
+        // Create flashlight for camera
+        _freeMovingCamera.CreateFlashlight(_spotLightsFactory);
     }
 
     void Renderer::Render()
@@ -36,14 +39,6 @@ namespace Renderer3D {
         glEnable(GL_DEPTH_TEST);
 
         _window.LockCursor();
-
-        // TODO: remove
-        _deferredShader.GetLightingPassShader()->Activate();
-        _deferredShader.GetLightingPassShader()->SetUniform("nrSpotLights", 1);
-        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
-        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].outerCutOff", glm::cos(glm::radians(15.0f)));
-        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].linear", 0.09f);
-        _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].quadratic", 0.032f);
 
         while (!_window.ShouldClose())
         {
@@ -57,6 +52,7 @@ namespace Renderer3D {
 
             // Update camera mode
             _freeMovingCamera.UpdateProjectionType(_controls->GetProjectionType());
+            _freeMovingCamera.UpdateUseFlashlight(_controls->GetUseCameraFlashlight());
 
             // Render
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -82,9 +78,8 @@ namespace Renderer3D {
             _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
             _deferredShader.UpdateSceneMode(_controls->GetSceneMode());
             _deferredShader.UpdateFogStrength(_controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
-            // TODO: remove
-            _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].position", _freeMovingCamera.GetPosition());
-            _deferredShader.GetLightingPassShader()->SetUniform("spotLights[0].direction", _freeMovingCamera.GetFront());
+            _spotLightsFactory.SetSpotLightsCountUniform(_deferredShader.GetLightingPassShader());
+            _freeMovingCamera.SetFlashlightUniforms(_deferredShader.GetLightingPassShader());
 
             // Render quad with proper lighting from previous step
             _deferredShader.RenderQuad();
