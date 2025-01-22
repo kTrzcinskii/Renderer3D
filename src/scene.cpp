@@ -75,6 +75,10 @@ namespace Renderer3D {
     void Scene::SetLightingPassShaderData(const std::shared_ptr<Shader>& lightingPassShader) const
     {
         _pointLightsContainer->SetLightingPassPointLightsData(lightingPassShader);
+        for (const auto& [_, entity] : _entities)
+        {
+            entity.SetSpotlightUniforms(lightingPassShader);
+        }
     }
 
     void Scene::RenderPointLightsForwardRendering(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos, const bool useFog, const float fogStrength, const float cameraFarZ) const

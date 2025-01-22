@@ -24,6 +24,10 @@ namespace Renderer3D {
     void Entity::UpdatePosition(const glm::vec3 position)
     {
         _position = position;
+        if (_spotLight != nullptr)
+        {
+            _spotLight->UpdatePosition(GetModelMatrix() * _spotLightModelPosition);
+        }
     }
 
     float Entity::GetRotationX() const
@@ -66,6 +70,14 @@ namespace Renderer3D {
         _scale = scale;
     }
 
+    void Entity::CreateSpotLight(SpotLightsFactory& spotLightsFactory, const glm::vec3 position, const glm::vec3 direction, const float cutOff, const float outerCutOff)
+    {
+        _spotLightModelPosition = glm::vec4(position, 1.0f);
+        const auto positionInWorld = GetModelMatrix() * _spotLightModelPosition;
+        _spotLight = std::make_shared<SpotLightSource>(spotLightsFactory.CreateSpotlight(positionInWorld, direction, cutOff, outerCutOff));
+        _spotLight->Activate();
+    }
+
     glm::mat4 Entity::GetModelMatrix() const
     {
         auto modelMatrix = glm::mat4(1.0f);
@@ -81,5 +93,13 @@ namespace Renderer3D {
     {
         shader->SetUniform("model", GetModelMatrix());
         _model->Draw(shader);
+    }
+
+    void Entity::SetSpotlightUniforms(const std::shared_ptr<Shader>& shader) const
+    {
+        if (_spotLight != nullptr)
+        {
+            _spotLight->SetUniforms(shader);
+        }
     }
 } // Renderer3D

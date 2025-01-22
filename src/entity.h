@@ -8,6 +8,8 @@
 #include <memory>
 
 #include "model.h"
+#include "spot_lights_factory.h"
+#include "spot_light_source.h"
 
 namespace fs = std::filesystem;
 
@@ -27,8 +29,10 @@ namespace Renderer3D {
         void UpdateRotationZ(float rotationZ);
         [[nodiscard]] glm::vec3 GetScale() const;
         void UpdateScale(glm::vec3 scale);
+        void CreateSpotLight(SpotLightsFactory& spotLightsFactory, glm::vec3 position, glm::vec3 direction, float cutOff, float outerCutOff);
         [[nodiscard]] glm::mat4 GetModelMatrix() const;
         void Draw(const std::shared_ptr<Shader>& shader) const;
+        void SetSpotlightUniforms(const std::shared_ptr<Shader>& shader) const;
     private:
         std::shared_ptr<Model> _model;
         glm::vec3 _position;
@@ -36,6 +40,8 @@ namespace Renderer3D {
         float _rotationY;
         float _rotationZ;
         glm::vec3 _scale;
+        std::shared_ptr<SpotLightSource> _spotLight = nullptr;
+        glm::vec4 _spotLightModelPosition = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     };
 
 } // Renderer3D

@@ -55,7 +55,7 @@ namespace Renderer3D {
 
         // Helpers
         void GeneratePointLightsForScene() const;
-        void SetupModelsForScene() const;
+        void SetupModelsForScene();
         void SetupSkyboxesForScene() const;
 
         // Consts
