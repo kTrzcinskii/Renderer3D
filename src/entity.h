@@ -33,6 +33,7 @@ namespace Renderer3D {
         [[nodiscard]] glm::mat4 GetModelMatrix() const;
         void Draw(const std::shared_ptr<Shader>& shader) const;
         void SetSpotlightUniforms(const std::shared_ptr<Shader>& shader) const;
+        void UpdateSpotlightDirection(glm::vec3 direction) const;
     private:
         std::shared_ptr<Model> _model;
         glm::vec3 _position;

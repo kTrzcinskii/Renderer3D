@@ -47,6 +47,7 @@ namespace Renderer3D {
         void ProcessMouseMovement(double xPos, double yPos);
         void ProcessKeyCallback(int key, int action);
         void RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const;
+        void UpdateUfoFlashlightDirection(const Entity& ufo) const;
 
         // Window callbacks
         static void ResizeCallback(GLFWwindow* window, int width, int height);

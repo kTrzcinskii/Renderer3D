@@ -22,6 +22,12 @@ namespace Renderer3D {
         ORTHOGRAPHIC
     };
 
+    struct FlashlightDirections
+    {
+        float x;
+        float z;
+    };
+
     class Controls {
     public:
         explicit Controls(const Window& window);
@@ -33,11 +39,13 @@ namespace Renderer3D {
         [[nodiscard]] ProjectionType GetProjectionType() const;
         [[nodiscard]] bool IsOrthographic() const;
         [[nodiscard]] float GetUseCameraFlashlight() const;
+        [[nodiscard]] FlashlightDirections GetUfosFlashlightDirection() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;
         ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
-        bool _useCameraFlashlight;
+        bool _useCameraFlashlight = false;
+        FlashlightDirections _ufosFlashlightDirection = {0.0f, 0.0f};
     };
 
 } // Renderer3D

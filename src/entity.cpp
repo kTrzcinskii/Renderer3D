@@ -102,4 +102,12 @@ namespace Renderer3D {
             _spotLight->SetUniforms(shader);
         }
     }
+
+    void Entity::UpdateSpotlightDirection(const glm::vec3 direction) const
+    {
+        if (_spotLight != nullptr)
+        {
+            _spotLight->UpdateDirection(direction);
+        }
+    }
 } // Renderer3D

@@ -59,6 +59,12 @@ namespace Renderer3D {
         ImGui::Text("Camera flashlight");
         ImGui::Checkbox("Enable", &_useCameraFlashlight);
 
+        // Ufo flashlight direction
+        ImGui::Spacing();
+        ImGui::Text("UFOs flashlights");
+        ImGui::SliderFloat("Direction X", &_ufosFlashlightDirection.x, -80.0f, 80.0f, "%.0f");
+        ImGui::SliderFloat("Direction Z", &_ufosFlashlightDirection.z, -80.0f, 80.0f, "%.0f");
+
         // Scene mode
         ImGui::Spacing();
         ImGui::Text("Scene mode:");
@@ -113,5 +119,10 @@ namespace Renderer3D {
     float Controls::GetUseCameraFlashlight() const
     {
         return _useCameraFlashlight;
+    }
+
+    FlashlightDirections Controls::GetUfosFlashlightDirection() const
+    {
+        return _ufosFlashlightDirection;
     }
 } // Renderer3D

@@ -218,6 +218,18 @@ namespace Renderer3D {
         }
     }
 
+    void Renderer::UpdateUfoFlashlightDirection(const Entity& ufo) const
+    {
+        constexpr auto rotationAxisX = glm::vec3(1.0f, 0.0f, 0.0f);
+        constexpr auto rotationAxisZ = glm::vec3(0.0f, 0.0f, 1.0f);
+        constexpr auto baseDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+        const auto [x, z] = _controls->GetUfosFlashlightDirection();
+        auto rotation = glm::rotate(glm::mat4(1.0f), glm::radians(x), rotationAxisX);
+        rotation = glm::rotate(rotation, glm::radians(z), rotationAxisZ);
+        const auto rotated =  glm::vec3(rotation * glm::vec4(baseDirection, 1.0f));
+        ufo.UpdateSpotlightDirection(rotated);
+    }
+
     void Renderer::ResizeCallback(GLFWwindow* window, const int width, const int height)
     {
         // ReSharper disable once CppTooWideScopeInitStatement
@@ -292,7 +304,7 @@ namespace Renderer3D {
         ufo1.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo1.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo1", ufo1);
-        _scene->AddEntityUpdateFunction("ufo1", [](Entity& entity, const float deltaTime)
+        _scene->AddEntityUpdateFunction("ufo1", [this](Entity& entity, const float deltaTime)
         {
             static bool goForward = true;
 
@@ -320,6 +332,7 @@ namespace Renderer3D {
             }
 
             entity.UpdatePosition(position);
+            UpdateUfoFlashlightDirection(entity);
         });
 
         Entity ufo2(_modelsManager->GetModel("ufo"));
@@ -327,7 +340,7 @@ namespace Renderer3D {
         ufo2.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo2.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo2", ufo2);
-        _scene->AddEntityUpdateFunction("ufo2", [](Entity& entity, const float deltaTime)
+        _scene->AddEntityUpdateFunction("ufo2", [this](Entity& entity, const float deltaTime)
         {
             static bool goForward = true;
 
@@ -355,6 +368,7 @@ namespace Renderer3D {
             }
 
             entity.UpdatePosition(position);
+            UpdateUfoFlashlightDirection(entity);
         });
 
         Entity ufo3(_modelsManager->GetModel("ufo"));
@@ -362,7 +376,7 @@ namespace Renderer3D {
         ufo3.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo3.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo3", ufo3);
-        _scene->AddEntityUpdateFunction("ufo3", [](Entity& entity, const float deltaTime)
+        _scene->AddEntityUpdateFunction("ufo3", [this](Entity& entity, const float deltaTime)
         {
             static bool goForward = true;
 
@@ -388,6 +402,7 @@ namespace Renderer3D {
             }
 
             entity.UpdatePosition(position);
+            UpdateUfoFlashlightDirection(entity);
         });
 
         Entity ufo4(_modelsManager->GetModel("ufo"));
@@ -395,7 +410,7 @@ namespace Renderer3D {
         ufo4.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo4.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo4", ufo4);
-        _scene->AddEntityUpdateFunction("ufo4", [](Entity& entity, const float deltaTime)
+        _scene->AddEntityUpdateFunction("ufo4", [this](Entity& entity, const float deltaTime)
         {
             static bool goForward = true;
 
@@ -421,6 +436,7 @@ namespace Renderer3D {
             }
 
             entity.UpdatePosition(position);
+            UpdateUfoFlashlightDirection(entity);
         });
 
         Entity cottage(_modelsManager->GetModel("cottage"));
