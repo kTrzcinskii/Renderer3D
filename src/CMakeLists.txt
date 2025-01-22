@@ -33,6 +33,10 @@ add_executable(Renderer3D
         controls.h
         models_manager.cpp
         models_manager.h
+        spot_light_source.cpp
+        spot_light_source.h
+        spot_lights_factory.cpp
+        spot_lights_factory.h
 )
 
 # Link libraries

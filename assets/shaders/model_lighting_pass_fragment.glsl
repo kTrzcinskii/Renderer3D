@@ -15,6 +15,7 @@ struct SpotLight {
     float outerCutOff;
     float linear;
     float quadratic;
+    bool use;
 };
 
 const int MAX_NR_POINT_LIGHTS = 256;
@@ -121,6 +122,10 @@ vec3 calculatePointLightsColor(vec3 fragPos, vec3 normal, vec3 diffuse, float sp
 
 vec3 calculateSpotlightColor(vec3 fragPos, vec3 normal, vec3 diffuse, float specular, vec3 cameraDir, SpotLight spotlight)
 {
+    if (!spotlight.use)
+    {
+        return vec3(0.0, 0.0, 0.0);
+    }
     float dist = length(spotlight.position - fragPos);
     // Diffuse
     vec3 lightDir = normalize(spotlight.position - fragPos);
