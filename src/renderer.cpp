@@ -288,7 +288,7 @@ namespace Renderer3D {
         _scene->AddEntity("backpack", backpack);
 
         Entity ufo1(_modelsManager->GetModel("ufo"));
-        ufo1.UpdatePosition(glm::vec3(5.0f, 5.5f, 4.0f));
+        ufo1.UpdatePosition(glm::vec3(5.0f, 7.5f, 4.0f));
         ufo1.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo1.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo1", ufo1);
@@ -323,7 +323,7 @@ namespace Renderer3D {
         });
 
         Entity ufo2(_modelsManager->GetModel("ufo"));
-        ufo2.UpdatePosition(glm::vec3(-12.0f, 4.5f, 8.0f));
+        ufo2.UpdatePosition(glm::vec3(-12.0f, 5.0f, 8.0f));
         ufo2.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo2.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo2", ufo2);
@@ -358,7 +358,7 @@ namespace Renderer3D {
         });
 
         Entity ufo3(_modelsManager->GetModel("ufo"));
-        ufo3.UpdatePosition(glm::vec3(15.0f, 5.0f, 6.0f));
+        ufo3.UpdatePosition(glm::vec3(15.0f, 6.0f, 6.0f));
         ufo3.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo3.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo3", ufo3);
@@ -391,7 +391,7 @@ namespace Renderer3D {
         });
 
         Entity ufo4(_modelsManager->GetModel("ufo"));
-        ufo4.UpdatePosition(glm::vec3(-8.0f, 4.0f, -13.0f));
+        ufo4.UpdatePosition(glm::vec3(-8.0f, 5.5f, -13.0f));
         ufo4.UpdateScale(glm::vec3(0.09f, 0.09f, 0.09f));
         ufo4.CreateSpotLight(_spotLightsFactory, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 25.5f, 27.5f);
         _scene->AddEntity("ufo4", ufo4);
