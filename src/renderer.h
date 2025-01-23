@@ -54,6 +54,8 @@ namespace Renderer3D {
         void RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const;
         void UpdateUfoFlashlightDirection(const Entity& ufo) const;
         static int GetCameraId(CameraType cameraType);
+        void FollowEntity(const Entity& entity);
+        void ThirdPersonBehindEntity(glm::vec3 previousPosition, glm::vec3 currentPosition);
 
         // Window callbacks
         static void ResizeCallback(GLFWwindow* window, int width, int height);

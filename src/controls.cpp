@@ -82,6 +82,35 @@ namespace Renderer3D {
             ImGui::Checkbox("Enable", &_useCameraFlashlight);
         }
 
+        // Ufo for following/third person camera
+        if (_cameraType == CameraType::OBJECT_FOLLOWING || _cameraType == CameraType::OBJECT_THIRD_PERSON)
+        {
+            ImGui::Spacing();
+            ImGui::Text("Select ufo");
+            if (ImGui::RadioButton("1", _selectedUfoIndex == 0))
+            {
+                _selectedUfoIndex = 0;
+            }
+            ImGui::SameLine();
+
+            if (ImGui::RadioButton("2", _selectedUfoIndex == 1))
+            {
+                _selectedUfoIndex = 1;
+            }
+            ImGui::SameLine();
+
+            if (ImGui::RadioButton("3", _selectedUfoIndex == 2))
+            {
+                _selectedUfoIndex = 2;
+            }
+            ImGui::SameLine();
+
+            if (ImGui::RadioButton("4", _selectedUfoIndex == 3))
+            {
+                _selectedUfoIndex = 3;
+            }
+        }
+
         // Ufo flashlight direction
         ImGui::Spacing();
         ImGui::Text("UFOs flashlights");
@@ -152,5 +181,10 @@ namespace Renderer3D {
     CameraType Controls::GetCameraType() const
     {
         return _cameraType;
+    }
+
+    size_t Controls::GetSelectedUfoIndex() const
+    {
+        return _selectedUfoIndex;
     }
 } // Renderer3D

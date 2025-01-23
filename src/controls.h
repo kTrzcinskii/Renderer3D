@@ -51,6 +51,7 @@ namespace Renderer3D {
         [[nodiscard]] bool GetUseCameraFlashlight() const;
         [[nodiscard]] FlashlightDirections GetUfosFlashlightDirection() const;
         [[nodiscard]] CameraType GetCameraType() const;
+        [[nodiscard]] size_t GetSelectedUfoIndex() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;
@@ -58,6 +59,7 @@ namespace Renderer3D {
         bool _useCameraFlashlight = false;
         FlashlightDirections _ufosFlashlightDirection = {0.0f, 0.0f};
         CameraType _cameraType = CameraType::MOVING;
+        size_t _selectedUfoIndex = 0;
     };
 
 } // Renderer3D

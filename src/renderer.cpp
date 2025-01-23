@@ -249,6 +249,35 @@ namespace Renderer3D {
         return static_cast<int>(cameraType);
     }
 
+    void Renderer::FollowEntity(const Entity& entity)
+    {
+        _cameras[GetCameraId(CameraType::OBJECT_FOLLOWING)].LookAt(entity.GetPosition());
+    }
+
+    void Renderer::ThirdPersonBehindEntity(const glm::vec3 previousPosition, const glm::vec3 currentPosition)
+    {
+        auto newCameraPosition = currentPosition;
+        newCameraPosition.y += 6.5f;
+        auto diff = previousPosition - currentPosition;
+        if (diff.x < 0.0f)
+        {
+            diff.x = -1.0f;
+        } else if (diff.x > 0.0f)
+        {
+            diff.x = 1.0f;
+        }
+        if (diff.z < 0.0f)
+        {
+            diff.z = -1.0f;
+        } else if (diff.z > 0.0f)
+        {
+            diff.z = 1.0f;
+        }
+        newCameraPosition += diff * 12.0f;
+        _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].SetPosition(newCameraPosition);
+        _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].LookAt(currentPosition);
+    }
+
     void Renderer::ResizeCallback(GLFWwindow* window, const int width, const int height)
     {
         // ReSharper disable once CppTooWideScopeInitStatement
@@ -331,7 +360,8 @@ namespace Renderer3D {
             entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
 
             // Move around
-            auto position = entity.GetPosition();
+            const auto prevPosition = entity.GetPosition();
+            auto position = prevPosition;
             if (goForward)
             {
                 position.z += deltaTime * 4.0f;
@@ -352,6 +382,19 @@ namespace Renderer3D {
 
             entity.UpdatePosition(position);
             UpdateUfoFlashlightDirection(entity);
+
+            // Third person camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON && _controls->GetSelectedUfoIndex() == 0)
+            {
+                ThirdPersonBehindEntity(prevPosition, position);
+            }
+
+
+            // Following camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING && _controls->GetSelectedUfoIndex() == 0)
+            {
+                FollowEntity(entity);
+            }
         });
 
         Entity ufo2(_modelsManager->GetModel("ufo"));
@@ -367,7 +410,8 @@ namespace Renderer3D {
             entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
 
             // Move around
-            auto position = entity.GetPosition();
+            const auto prevPosition = entity.GetPosition();
+            auto position = prevPosition;
             if (goForward)
             {
                 position.z += deltaTime * 4.0f;
@@ -389,10 +433,17 @@ namespace Renderer3D {
             entity.UpdatePosition(position);
             UpdateUfoFlashlightDirection(entity);
 
-            // Following camera
-            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING)
+            // Third person camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON && _controls->GetSelectedUfoIndex() == 1)
             {
-                _cameras[GetCameraId(CameraType::OBJECT_FOLLOWING)].LookAt(entity.GetPosition());
+                ThirdPersonBehindEntity(prevPosition, position);
+            }
+
+
+            // Following camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING && _controls->GetSelectedUfoIndex() == 1)
+            {
+                FollowEntity(entity);
             }
         });
 
@@ -409,7 +460,8 @@ namespace Renderer3D {
             entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
 
             // Move around
-            auto position = entity.GetPosition();
+            const auto prevPosition = entity.GetPosition();
+            auto position = prevPosition;
             if (goForward)
             {
                 position.z += deltaTime * 4.0f;
@@ -428,6 +480,18 @@ namespace Renderer3D {
 
             entity.UpdatePosition(position);
             UpdateUfoFlashlightDirection(entity);
+
+            // Third person camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON && _controls->GetSelectedUfoIndex() == 2)
+            {
+                ThirdPersonBehindEntity(prevPosition, position);
+            }
+
+            // Following camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING && _controls->GetSelectedUfoIndex() == 2)
+            {
+                FollowEntity(entity);
+            }
         });
 
         Entity ufo4(_modelsManager->GetModel("ufo"));
@@ -443,7 +507,8 @@ namespace Renderer3D {
             entity.UpdateRotationY(entity.GetRotationY() + deltaTime * 25.0f);
 
             // Move around
-            auto position = entity.GetPosition();
+            const auto prevPosition = entity.GetPosition();
+            auto position = prevPosition;
             if (goForward)
             {
                 position.x += deltaTime * 4.0f;
@@ -464,20 +529,15 @@ namespace Renderer3D {
             UpdateUfoFlashlightDirection(entity);
 
             // Third person camera
-            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON)
+            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON && _controls->GetSelectedUfoIndex() == 3)
             {
-                auto newCameraPosition = entity.GetPosition();
-                newCameraPosition.y += 6.5f;
-                if (goForward)
-                {
-                    newCameraPosition.x -= 12.0f;
-                }
-                else
-                {
-                    newCameraPosition.x += 12.0f;
-                }
-                _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].SetPosition(newCameraPosition);
-                _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].LookAt(entity.GetPosition());
+                ThirdPersonBehindEntity(prevPosition, position);
+            }
+
+            // Following camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING && _controls->GetSelectedUfoIndex() == 3)
+            {
+                FollowEntity(entity);
             }
         });
 
