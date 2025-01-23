@@ -337,15 +337,10 @@ namespace Renderer3D {
 
     void Renderer::SetupModelsForScene()
     {
-        _modelsManager->AddModel("backpack", std::make_shared<Model>("../assets/models/backpack/backpack.obj", true));
         _modelsManager->AddModel("ufo", std::make_shared<Model>("../assets/models/ufo/Low_poly_UFO.obj"));
         _modelsManager->AddModel("cottage", std::make_shared<Model>("../assets/models/cottage/Cottage_FREE.obj"));
         _modelsManager->AddModel("farmHouse", std::make_shared<Model>("../assets/models/farm_house/farmhouse_obj.obj"));
-
-        Entity backpack(_modelsManager->GetModel("backpack"));
-        backpack.UpdatePosition(glm::vec3(0.0f, 2.0f, -3.0f));
-        backpack.UpdateScale(glm::vec3(0.8f, 0.8f, 0.8f));
-        _scene->AddEntity("backpack", backpack);
+        _modelsManager->AddModel("spaceship", std::make_shared<Model>("../assets/models/spaceship/Intergalactic_Spaceship-(Wavefront).obj"));
 
         Entity ufo1(_modelsManager->GetModel("ufo"));
         ufo1.UpdatePosition(glm::vec3(5.0f, 7.5f, 4.0f));
@@ -551,6 +546,112 @@ namespace Renderer3D {
         farmHouse.UpdateScale(glm::vec3(0.2f, 0.2f, 0.2f));
         farmHouse.UpdateRotationY(-90.0f);
         _scene->AddEntity("farmHouse", farmHouse);
+
+        Entity spaceship(_modelsManager->GetModel("spaceship"));
+        spaceship.UpdatePosition(glm::vec3(4.0f, 2.0f, 8.0f));
+        spaceship.UpdateScale(glm::vec3(0.6f, 0.6f, 0.6f));
+        spaceship.UpdateRotationY(180.0f);
+        _scene->AddEntity("spaceship", spaceship);
+        _scene->AddEntityUpdateFunction("spaceship", [](Entity& entity, const float deltaTime)
+        {
+            enum class Direction
+            {
+                NEGATIVE_Z,
+                ANGLE_NZ_TO_NX,
+                NEGATIVE_X,
+                ANGLE_NX_TO_PZ,
+                POSITIVE_Z,
+                ANGLE_PZ_TO_PX,
+                POSITIVE_X,
+                ANGLE_PX_TO_NZ,
+            };
+
+            constexpr float MOVEMENT_SPEED = 1.5f;
+            constexpr float ROTATION_SPEED = 40.0f;
+            constexpr float MIN_X = -1.0f;
+            // ReSharper disable once CppTooWideScopeInitStatement
+            constexpr float MAX_X = 4.0f;
+            constexpr float MIN_Z = -2.0f;
+            // ReSharper disable once CppTooWideScopeInitStatement
+            constexpr float MAX_Z = 8.0f;
+
+            static auto direction = Direction::NEGATIVE_Z;
+
+            auto position = entity.GetPosition();
+            auto rotation = entity.GetRotationY();
+
+            switch (direction)
+            {
+            case Direction::NEGATIVE_Z:
+                position.z -= deltaTime * MOVEMENT_SPEED;
+                entity.UpdatePosition(position);
+                if (position.z < MIN_Z)
+                {
+                    direction = Direction::ANGLE_NZ_TO_NX;
+                }
+                break;
+            case Direction::ANGLE_NZ_TO_NX:
+                rotation += deltaTime * ROTATION_SPEED;
+                if (rotation >= 270.f)
+                {
+                    rotation = 270.f;
+                    direction = Direction::NEGATIVE_X;
+                }
+                entity.UpdateRotationY(rotation);
+                break;
+            case Direction::NEGATIVE_X:
+                position.x -= deltaTime * MOVEMENT_SPEED;
+                entity.UpdatePosition(position);
+                if (position.x < MIN_X)
+                {
+                    direction = Direction::ANGLE_NX_TO_PZ;
+                }
+                break;
+            case Direction::ANGLE_NX_TO_PZ:
+                rotation += deltaTime * ROTATION_SPEED;
+                if (rotation >= 360.f)
+                {
+                    rotation = 0.0f;
+                    direction = Direction::POSITIVE_Z;
+                }
+                entity.UpdateRotationY(rotation);
+                break;
+            case Direction::POSITIVE_Z:
+                position.z += deltaTime * MOVEMENT_SPEED;
+                entity.UpdatePosition(position);
+                if (position.z > MAX_Z)
+                {
+                    direction = Direction::ANGLE_PZ_TO_PX;
+                }
+                break;
+            case Direction::ANGLE_PZ_TO_PX:
+                rotation += deltaTime * ROTATION_SPEED;
+                if (rotation >= 90.f)
+                {
+                    rotation = 90.0f;
+                    direction = Direction::POSITIVE_X;
+                }
+                entity.UpdateRotationY(rotation);
+                break;
+            case Direction::POSITIVE_X:
+                position.x += deltaTime * MOVEMENT_SPEED;
+                entity.UpdatePosition(position);
+                if (position.x > MAX_X)
+                {
+                    direction = Direction::ANGLE_PX_TO_NZ;
+                }
+                break;
+            case Direction::ANGLE_PX_TO_NZ:
+                rotation += deltaTime * ROTATION_SPEED;
+                if (rotation >= 180.f)
+                {
+                    rotation = 180.0f;
+                    direction = Direction::NEGATIVE_Z;
+                }
+                entity.UpdateRotationY(rotation);
+                break;
+            }
+        });
     }
 
     void Renderer::SetupSkyboxesForScene() const
