@@ -34,7 +34,12 @@ namespace Renderer3D {
 
         // Objects
         Window _window;
-        Camera _freeMovingCamera;
+        Camera _cameras[CAMERA_TYPE_COUNT] = {
+            Camera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT),
+            Camera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT),
+            Camera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT),
+            Camera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT)
+        };
         DeferredShaderer _deferredShader;
         SpotLightsFactory _spotLightsFactory = SpotLightsFactory();
         std::unique_ptr<Scene> _scene = nullptr;
@@ -48,6 +53,7 @@ namespace Renderer3D {
         void ProcessKeyCallback(int key, int action);
         void RenderSkybox(const glm::mat4& view, const glm::mat4& projection) const;
         void UpdateUfoFlashlightDirection(const Entity& ufo) const;
+        static int GetCameraId(CameraType cameraType);
 
         // Window callbacks
         static void ResizeCallback(GLFWwindow* window, int width, int height);
@@ -58,6 +64,7 @@ namespace Renderer3D {
         void GeneratePointLightsForScene() const;
         void SetupModelsForScene();
         void SetupSkyboxesForScene() const;
+        void SetupCameras();
 
         // Consts
         static constexpr size_t INITIAL_WIDTH = 1600;

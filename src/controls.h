@@ -28,6 +28,16 @@ namespace Renderer3D {
         float z;
     };
 
+    enum class CameraType
+    {
+        MOVING = 0,
+        STATIC,
+        OBJECT_FOLLOWING,
+        OBJECT_THIRD_PERSON,
+    };
+
+    constexpr size_t CAMERA_TYPE_COUNT = 4;
+
     class Controls {
     public:
         explicit Controls(const Window& window);
@@ -38,14 +48,16 @@ namespace Renderer3D {
         [[nodiscard]] bool IsFog() const;
         [[nodiscard]] ProjectionType GetProjectionType() const;
         [[nodiscard]] bool IsOrthographic() const;
-        [[nodiscard]] float GetUseCameraFlashlight() const;
+        [[nodiscard]] bool GetUseCameraFlashlight() const;
         [[nodiscard]] FlashlightDirections GetUfosFlashlightDirection() const;
+        [[nodiscard]] CameraType GetCameraType() const;
     private:
         SceneMode _sceneMode = SceneMode::Day;
         float _fogStrength = 0.0f;
         ProjectionType _projectionType = ProjectionType::PERSPECTIVE;
         bool _useCameraFlashlight = false;
         FlashlightDirections _ufosFlashlightDirection = {0.0f, 0.0f};
+        CameraType _cameraType = CameraType::MOVING;
     };
 
 } // Renderer3D

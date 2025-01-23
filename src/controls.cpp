@@ -54,10 +54,33 @@ namespace Renderer3D {
             _projectionType = ProjectionType::ORTHOGRAPHIC;
         }
 
-        // Camera flashlight
+        // Camera type
         ImGui::Spacing();
-        ImGui::Text("Camera flashlight");
-        ImGui::Checkbox("Enable", &_useCameraFlashlight);
+        ImGui::Text("Camera type");
+        if (ImGui::RadioButton("Moving", _cameraType == CameraType::MOVING))
+        {
+            _cameraType = CameraType::MOVING;
+        }
+        if (ImGui::RadioButton("Static", _cameraType == CameraType::STATIC))
+        {
+            _cameraType = CameraType::STATIC;
+        }
+        if (ImGui::RadioButton("Following object", _cameraType == CameraType::OBJECT_FOLLOWING))
+        {
+            _cameraType = CameraType::OBJECT_FOLLOWING;
+        }
+        if (ImGui::RadioButton("Object third person", _cameraType == CameraType::OBJECT_THIRD_PERSON))
+        {
+            _cameraType = CameraType::OBJECT_THIRD_PERSON;
+        }
+
+        // Camera flashlight
+        if (_cameraType == CameraType::MOVING && _projectionType == ProjectionType::PERSPECTIVE)
+        {
+            ImGui::Spacing();
+            ImGui::Text("Camera flashlight");
+            ImGui::Checkbox("Enable", &_useCameraFlashlight);
+        }
 
         // Ufo flashlight direction
         ImGui::Spacing();
@@ -116,7 +139,7 @@ namespace Renderer3D {
         return _projectionType == ProjectionType::ORTHOGRAPHIC;
     }
 
-    float Controls::GetUseCameraFlashlight() const
+    bool Controls::GetUseCameraFlashlight() const
     {
         return _useCameraFlashlight;
     }
@@ -124,5 +147,10 @@ namespace Renderer3D {
     FlashlightDirections Controls::GetUfosFlashlightDirection() const
     {
         return _ufosFlashlightDirection;
+    }
+
+    CameraType Controls::GetCameraType() const
+    {
+        return _cameraType;
     }
 } // Renderer3D

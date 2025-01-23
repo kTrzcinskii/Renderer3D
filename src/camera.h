@@ -43,7 +43,9 @@ namespace Renderer3D {
         [[nodiscard]] glm::vec3 GetFront() const;
         // Actions
         void Move(CameraMovementDirection direction, float deltaTime);
+        void SetPosition(glm::vec3 position);
         void Rotate(RotateDiff diff, bool constraintPitch = true);
+        void LookAt(glm::vec3 target);
         void Zoom(float offset);
         void UpdateScreenSize(float screenWidth, float screenHeight);
         void UpdateProjectionType(ProjectionType projectionType);

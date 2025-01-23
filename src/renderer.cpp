@@ -14,7 +14,7 @@
 #include "point_light_source.h"
 
 namespace Renderer3D {
-    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _freeMovingCamera(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _scene(std::make_unique<Scene>(Scene()))
+    Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _scene(std::make_unique<Scene>(Scene()))
     {
         // We store pointer to renderer inside window so we could easily set up callbacks
         _window.SetUserPointer(this);
@@ -29,9 +29,7 @@ namespace Renderer3D {
         GeneratePointLightsForScene();
         SetupModelsForScene();
         SetupSkyboxesForScene();
-
-        // Create flashlight for camera
-        _freeMovingCamera.CreateFlashlight(_spotLightsFactory);
+        SetupCameras();
     }
 
     void Renderer::Render()
@@ -51,16 +49,24 @@ namespace Renderer3D {
             ProcessInput();
 
             // Update camera mode
-            _freeMovingCamera.UpdateProjectionType(_controls->GetProjectionType());
-            _freeMovingCamera.UpdateUseFlashlight(_controls->GetUseCameraFlashlight());
+            _cameras[GetCameraId(_controls->GetCameraType())].UpdateProjectionType(_controls->GetProjectionType());
+            if (_controls->GetCameraType() == CameraType::MOVING)
+            {
+                _cameras[GetCameraId(CameraType::MOVING)].UpdateUseFlashlight(_controls->GetUseCameraFlashlight());
+            }
+            else
+            {
+                // We don't want to see moving camera flashlight in other cameras
+                _cameras[GetCameraId(CameraType::MOVING)].UpdateUseFlashlight(false);
+            }
 
             // Render
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Camera matrices
-            const auto projection = _freeMovingCamera.GetProjectionMatrix();
-            const auto view = _freeMovingCamera.GetViewMatrix();
+            const auto projection = _cameras[GetCameraId(_controls->GetCameraType())].GetProjectionMatrix();
+            const auto view = _cameras[GetCameraId(_controls->GetCameraType())].GetViewMatrix();
 
             // Geometry pass - render data into gBuffer
             _deferredShader.BindGBuffer();
@@ -75,11 +81,11 @@ namespace Renderer3D {
             _deferredShader.GetLightingPassShader()->Activate();
             _deferredShader.BindGTextures();
             _scene->SetLightingPassShaderData(_deferredShader.GetLightingPassShader());
-            _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _freeMovingCamera.GetPosition());
+            _deferredShader.GetLightingPassShader()->SetUniform("cameraPos", _cameras[GetCameraId(_controls->GetCameraType())].GetPosition());
             _deferredShader.UpdateSceneMode(_controls->GetSceneMode());
-            _deferredShader.UpdateFogStrength(_controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
+            _deferredShader.UpdateFogStrength(_controls->GetFogStrength(), _cameras[GetCameraId(_controls->GetCameraType())].GetFarZ());
             _spotLightsFactory.SetSpotLightsCountUniform(_deferredShader.GetLightingPassShader());
-            _freeMovingCamera.SetFlashlightUniforms(_deferredShader.GetLightingPassShader());
+            _cameras[GetCameraId(CameraType::MOVING)].SetFlashlightUniforms(_deferredShader.GetLightingPassShader());
 
             // Render quad with proper lighting from previous step
             _deferredShader.RenderQuad();
@@ -88,7 +94,7 @@ namespace Renderer3D {
             _deferredShader.CopyDepthBufferToDefaultBuffer();
 
             // Render additional effects using forward rendering
-            _scene->RenderPointLightsForwardRendering(view, projection, _freeMovingCamera.GetPosition(), _controls->IsFog(), _controls->GetFogStrength(), _freeMovingCamera.GetFarZ());
+            _scene->RenderPointLightsForwardRendering(view, projection, _cameras[GetCameraId(_controls->GetCameraType())].GetPosition(), _controls->IsFog(), _controls->GetFogStrength(), _cameras[GetCameraId(_controls->GetCameraType())].GetFarZ());
             RenderSkybox(view, projection);
 
             _window.PollEvents();
@@ -104,7 +110,10 @@ namespace Renderer3D {
     {
         spdlog::info("Window resized: {}x{}", width, height);
         glViewport(0, 0, width, height);
-        _freeMovingCamera.UpdateScreenSize(static_cast<float>(width), static_cast<float>(height));
+        for (size_t i = 0; i < CAMERA_TYPE_COUNT; i++)
+        {
+            _cameras[i].UpdateProjectionType(_controls->GetProjectionType());
+        }
         _deferredShader.Resize(width, height);
     }
 
@@ -116,47 +125,52 @@ namespace Renderer3D {
             _window.Close();
         }
 
-        // Camera movement
+        // Camera movement only for moving camera
+        if (_controls->GetCameraType() != CameraType::MOVING)
+        {
+            return;
+        }
         if (_window.IsKeyPressed(GLFW_KEY_W))
         {
             spdlog::info("Moving camera forward");
-            _freeMovingCamera.Move(CameraMovementDirection::FORWARD, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::FORWARD, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_S))
         {
             spdlog::info("Moving camera backward");
-            _freeMovingCamera.Move(CameraMovementDirection::BACKWARD, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::BACKWARD, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_A))
         {
             spdlog::info("Moving camera left");
-            _freeMovingCamera.Move(CameraMovementDirection::LEFT, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::LEFT, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_D))
         {
             spdlog::info("Moving camera right");
-            _freeMovingCamera.Move(CameraMovementDirection::RIGHT, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::RIGHT, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_SPACE))
         {
             spdlog::info("Moving camera up");
-            _freeMovingCamera.Move(CameraMovementDirection::UP, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::UP, _deltaTime);
         }
 
         if (_window.IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
         {
             spdlog::info("Moving camera down");
-            _freeMovingCamera.Move(CameraMovementDirection::DOWN, _deltaTime);
+            _cameras[GetCameraId(_controls->GetCameraType())].Move(CameraMovementDirection::DOWN, _deltaTime);
         }
     }
 
     void Renderer::ProcessMouseMovement(double xPos, double yPos)
     {
-        if (!_isCursorLocked)
+        // Only for moving camera
+        if (!_isCursorLocked || _controls->GetCameraType() != CameraType::MOVING)
         {
             return;
         }
@@ -175,7 +189,7 @@ namespace Renderer3D {
         _mouseXPos = x;
         _mouseYPos = y;
 
-        _freeMovingCamera.Rotate({xOffset, yOffset});
+        _cameras[GetCameraId(_controls->GetCameraType())].Rotate({xOffset, yOffset});
     }
 
     void Renderer::ProcessKeyCallback(const int key, const int action)
@@ -228,6 +242,11 @@ namespace Renderer3D {
         rotation = glm::rotate(rotation, glm::radians(z), rotationAxisZ);
         const auto rotated =  glm::vec3(rotation * glm::vec4(baseDirection, 1.0f));
         ufo.UpdateSpotlightDirection(rotated);
+    }
+
+    int Renderer::GetCameraId(CameraType cameraType)
+    {
+        return static_cast<int>(cameraType);
     }
 
     void Renderer::ResizeCallback(GLFWwindow* window, const int width, const int height)
@@ -369,6 +388,12 @@ namespace Renderer3D {
 
             entity.UpdatePosition(position);
             UpdateUfoFlashlightDirection(entity);
+
+            // Following camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_FOLLOWING)
+            {
+                _cameras[GetCameraId(CameraType::OBJECT_FOLLOWING)].LookAt(entity.GetPosition());
+            }
         });
 
         Entity ufo3(_modelsManager->GetModel("ufo"));
@@ -437,6 +462,23 @@ namespace Renderer3D {
 
             entity.UpdatePosition(position);
             UpdateUfoFlashlightDirection(entity);
+
+            // Third person camera
+            if (_controls->GetCameraType() == CameraType::OBJECT_THIRD_PERSON)
+            {
+                auto newCameraPosition = entity.GetPosition();
+                newCameraPosition.y += 6.5f;
+                if (goForward)
+                {
+                    newCameraPosition.x -= 12.0f;
+                }
+                else
+                {
+                    newCameraPosition.x += 12.0f;
+                }
+                _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].SetPosition(newCameraPosition);
+                _cameras[GetCameraId(CameraType::OBJECT_THIRD_PERSON)].LookAt(entity.GetPosition());
+            }
         });
 
         Entity cottage(_modelsManager->GetModel("cottage"));
@@ -456,5 +498,16 @@ namespace Renderer3D {
         const auto& skyboxShader = std::make_shared<Shader>("../assets/shaders/skybox_vertex.glsl", "../assets/shaders/skybox_fragment.glsl");
         _scene->UpdateNightSkybox(std::make_unique<Skybox>("../assets/cubemaps/night/px.jpg", "../assets/cubemaps/night/nx.jpg", "../assets/cubemaps/night/py.jpg", "../assets/cubemaps/night/ny.jpg", "../assets/cubemaps/night/pz.jpg", "../assets/cubemaps/night/nz.jpg", skyboxShader));
         _scene->UpdateDaySkybox(std::make_unique<Skybox>("../assets/cubemaps/day/Daylight Box_Right.bmp", "../assets/cubemaps/day/Daylight Box_Left.bmp", "../assets/cubemaps/day/Daylight Box_Top.bmp", "../assets/cubemaps/day/Daylight Box_Bottom.bmp", "../assets/cubemaps/day/Daylight Box_Front.bmp", "../assets/cubemaps/day/Daylight Box_Back.bmp", skyboxShader));
+    }
+
+    void Renderer::SetupCameras()
+    {
+        // Moving
+        _cameras[GetCameraId(CameraType::MOVING)].CreateFlashlight(_spotLightsFactory);
+        // Static
+        _cameras[GetCameraId(CameraType::STATIC)].SetPosition(glm::vec3(0.0f, 17.0f, 25.0f));
+        _cameras[GetCameraId(CameraType::STATIC)].Rotate({0.0f, -250.0f});
+        // Following
+        _cameras[GetCameraId(CameraType::OBJECT_FOLLOWING)].SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
     }
 } // Renderer3D

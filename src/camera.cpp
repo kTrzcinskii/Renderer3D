@@ -104,6 +104,15 @@ namespace Renderer3D {
         }
     }
 
+    void Camera::SetPosition(const glm::vec3 position)
+    {
+        _position = position;
+        if (_flashlight != nullptr)
+        {
+            _flashlight->UpdatePosition(_position);
+        }
+    }
+
     void Camera::Rotate(const RotateDiff diff, const bool constraintPitch)
     {
         _yaw += diff.xOffset * _mouseSensitivity;
@@ -122,6 +131,16 @@ namespace Renderer3D {
         }
 
         spdlog::info("Rotating camera: pitch - {}, yaw - {}", _pitch, _yaw);
+
+        UpdateCameraVectors();
+    }
+
+    void Camera::LookAt(const glm::vec3 target)
+    {
+        const auto direction = glm::normalize(target - _position);
+
+        _pitch = glm::degrees(std::asin(direction.y));
+        _yaw = glm::degrees(std::atan2(direction.z, direction.x));
 
         UpdateCameraVectors();
     }
@@ -167,7 +186,11 @@ namespace Renderer3D {
 
     void Camera::UpdateUseFlashlight(const bool useFlashlight) const
     {
-        if (useFlashlight)
+        if (_flashlight == nullptr)
+        {
+            return;
+        }
+        if (useFlashlight && _projectionType == ProjectionType::PERSPECTIVE)
         {
             _flashlight->Activate();
         }
