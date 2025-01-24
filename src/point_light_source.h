@@ -18,6 +18,7 @@ namespace Renderer3D {
         void SetUniforms(const std::shared_ptr<Shader>& shader, size_t idx) const;
         [[nodiscard]] glm::vec3 GetPosition() const;
         [[nodiscard]] glm::vec3 GetColor() const;
+        static PointLightSource GenerateRandom(float minX, float maxX, float minY, float maxY, float minZ, float maxZ);
     private:
         glm::vec3 _position;
         glm::vec3 _color;

@@ -3,6 +3,8 @@
 //
 
 #include <format>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "point_light_source.h"
 
@@ -36,4 +38,22 @@ namespace Renderer3D {
     {
         return _color;
     }
+
+    PointLightSource PointLightSource::GenerateRandom(const float minX, const float maxX, const float minY, const float maxY, const float minZ, const float maxZ)
+    {
+        // Random offsets
+        const auto xPos = rand() / static_cast<float>(RAND_MAX) * (maxX - minX) + minX;
+        const auto yPos = rand() / static_cast<float>(RAND_MAX) * (maxY - minY) + minY;
+        const auto zPos = rand() / static_cast<float>(RAND_MAX) * (maxZ - minZ) + minZ;
+        const auto position = glm::vec3(xPos, yPos, zPos);
+
+        // Random color
+        const auto rColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.
+        const auto gColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.
+        const auto bColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.
+        const auto color = glm::vec3(rColor, gColor, bColor);
+
+        return PointLightSource(position, color);
+    }
+
 } // Renderer3D
