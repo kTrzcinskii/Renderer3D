@@ -18,7 +18,10 @@ namespace Renderer3D {
         PointLightsContainer(PointLightsContainer&& other) noexcept;
         ~PointLightsContainer();
         [[nodiscard]] bool CanAddPointLight() const;
+        [[nodiscard]] bool CanRemovePointLight() const;
+        [[nodiscard]] size_t GetPointLightCount() const;
         void AddPointLight(const PointLightSource& pointLight);
+        void RemovePointLight(size_t idx);
         void RenderPointLights(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& cameraPos, bool useFog, float fogStrength, float cameraFarZ) const;
         void SetLightingPassPointLightsData(const std::shared_ptr<Shader>& lightingPassShader) const;
     private:

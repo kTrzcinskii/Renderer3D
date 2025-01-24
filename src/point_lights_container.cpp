@@ -53,11 +53,29 @@ namespace Renderer3D {
         return _pointLights.size() < MAX_NR_POINT_LIGHTS;
     }
 
+    bool PointLightsContainer::CanRemovePointLight() const
+    {
+        return _pointLights.size() > 0;
+    }
+
+    size_t PointLightsContainer::GetPointLightCount() const
+    {
+        return _pointLights.size();
+    }
+
     void PointLightsContainer::AddPointLight(const PointLightSource& pointLight)
     {
         if (CanAddPointLight())
         {
             _pointLights.push_back(pointLight);
+        }
+    }
+
+    void PointLightsContainer::RemovePointLight(const size_t idx)
+    {
+        if (CanRemovePointLight() && idx < _pointLights.size())
+        {
+            _pointLights.erase(_pointLights.begin() + idx);
         }
     }
 
