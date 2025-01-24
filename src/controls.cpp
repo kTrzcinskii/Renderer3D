@@ -31,7 +31,7 @@ namespace Renderer3D {
         ImGui::DestroyContext();
     }
 
-    void Controls::Draw(const std::unique_ptr<PointLightsContainer>& pointLightsContainer)
+    void Controls::Draw(const float deltaTima, const std::unique_ptr<PointLightsContainer>& pointLightsContainer)
     {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -44,6 +44,11 @@ namespace Renderer3D {
 
         // Information about locking cursor
         ImGui::Text("Press 'L' to lock/unlock cursor.");
+        ImGui::Spacing();
+
+        // Fps data
+        ImGui::Spacing();
+        ImGui::Text("FPS: %.2f", 1.0f / deltaTima);
         ImGui::Spacing();
 
         // Projection type
@@ -124,8 +129,7 @@ namespace Renderer3D {
         // Point lights
         ImGui::Spacing();
         ImGui::Text("Point lights");
-        const auto pointLightsCount = std::format("Count: {}", pointLightsContainer->GetPointLightCount());
-        ImGui::Text(pointLightsCount.c_str());
+        ImGui::Text("Count: %llu", pointLightsContainer->GetPointLightCount());
         // Adding
         if (!pointLightsContainer->CanAddPointLight())
         {

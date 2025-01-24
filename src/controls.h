@@ -43,7 +43,7 @@ namespace Renderer3D {
     public:
         explicit Controls(const Window& window);
         ~Controls();
-        void Draw(const std::unique_ptr<PointLightsContainer>& pointLightsContainer);
+        void Draw(float deltaTima, const std::unique_ptr<PointLightsContainer>& pointLightsContainer);
         void UpdateCanAddPointLight(bool canAdd);
         [[nodiscard]] SceneMode GetSceneMode() const;
         [[nodiscard]] float GetFogStrength() const;

@@ -97,7 +97,7 @@ namespace Renderer3D {
             _window.PollEvents();
 
             // Draw controls
-            _controls->Draw(_scene->GetPointLightContainer());
+            _controls->Draw(_deltaTime, _scene->GetPointLightContainer());
 
             _window.SwapBuffers();
         }
