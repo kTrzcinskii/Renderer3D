@@ -2,7 +2,11 @@
 // Created by Kacper Trzciński on 19.01.2025.
 //
 
+#include <format>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -27,7 +31,7 @@ namespace Renderer3D {
         ImGui::DestroyContext();
     }
 
-    void Controls::Draw()
+    void Controls::Draw(const std::unique_ptr<PointLightsContainer>& pointLightsContainer)
     {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -117,6 +121,62 @@ namespace Renderer3D {
         ImGui::SliderFloat("Direction X", &_ufosFlashlightDirection.x, -80.0f, 80.0f, "%.0f");
         ImGui::SliderFloat("Direction Z", &_ufosFlashlightDirection.z, -80.0f, 80.0f, "%.0f");
 
+        // Point lights
+        ImGui::Spacing();
+        ImGui::Text("Point lights");
+        const auto pointLightsCount = std::format("Count: {}", pointLightsContainer->GetPointLightCount());
+        ImGui::Text(pointLightsCount.c_str());
+        // Adding
+        if (!pointLightsContainer->CanAddPointLight())
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+        }
+        bool changedThisFrame = false;
+        if (ImGui::Button("Create single"))
+        {
+            pointLightsContainer->AddPointLight(PointLightSource::GenerateRandom(MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z));
+            changedThisFrame = true;
+        }
+        else if (ImGui::Button("Create max capacity"))
+        {
+            while (pointLightsContainer->CanAddPointLight())
+            {
+                pointLightsContainer->AddPointLight(PointLightSource::GenerateRandom(MIN_X, MAX_X, MIN_Y, MAX_Y, MIN_Z, MAX_Z));
+            }
+            changedThisFrame = true;
+        }
+        if (!pointLightsContainer->CanAddPointLight() && !changedThisFrame)
+        {
+            ImGui::PopStyleVar();
+            ImGui::PopItemFlag();
+        }
+        // Removing
+        if (!pointLightsContainer->CanRemovePointLight())
+        {
+            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+        }
+        changedThisFrame = false;
+        if (ImGui::Button("Remove single"))
+        {
+            pointLightsContainer->RemovePointLight(rand() % pointLightsContainer->GetPointLightCount());
+            changedThisFrame = true;
+        }
+        else if (ImGui::Button("Remove all"))
+        {
+            while (pointLightsContainer->CanRemovePointLight())
+            {
+                pointLightsContainer->RemovePointLight(rand() % pointLightsContainer->GetPointLightCount());
+            }
+            changedThisFrame = true;
+        }
+        if (!pointLightsContainer->CanRemovePointLight() && !changedThisFrame)
+        {
+            ImGui::PopStyleVar();
+            ImGui::PopItemFlag();
+        }
+
         // Scene mode
         ImGui::Spacing();
         ImGui::Text("Scene mode:");
@@ -141,6 +201,11 @@ namespace Renderer3D {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    void Controls::UpdateCanAddPointLight(const bool canAdd)
+    {
+        _canAddPointLight = canAdd;
     }
 
     SceneMode Controls::GetSceneMode() const

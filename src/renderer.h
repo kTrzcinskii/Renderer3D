@@ -63,7 +63,6 @@ namespace Renderer3D {
         static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
         // Helpers
-        void GeneratePointLightsForScene() const;
         void SetupModelsForScene();
         void SetupSkyboxesForScene() const;
         void SetupCameras();

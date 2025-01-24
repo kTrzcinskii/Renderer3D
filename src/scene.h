@@ -22,6 +22,7 @@ namespace Renderer3D {
         void AddEntity(const std::string& name, const Entity& entity);
         void AddEntityUpdateFunction(const std::string& name, const UpdateEntityFunctionType& function);
         void UpdatePointLightContainer(std::unique_ptr<PointLightsContainer> pointLightsContainer);
+        const std::unique_ptr<PointLightsContainer>& GetPointLightContainer() const;
         void UpdateNightSkybox(std::unique_ptr<Skybox> skybox);
         void UpdateDaySkybox(std::unique_ptr<Skybox> skybox);
         void UpdateEntities(float deltaTime);

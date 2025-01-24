@@ -6,6 +6,7 @@
 #define CONTROLS_H
 
 #include "window.h"
+#include "scene.h"
 
 namespace Renderer3D {
 
@@ -42,7 +43,8 @@ namespace Renderer3D {
     public:
         explicit Controls(const Window& window);
         ~Controls();
-        void Draw();
+        void Draw(const std::unique_ptr<PointLightsContainer>& pointLightsContainer);
+        void UpdateCanAddPointLight(bool canAdd);
         [[nodiscard]] SceneMode GetSceneMode() const;
         [[nodiscard]] float GetFogStrength() const;
         [[nodiscard]] bool IsFog() const;
@@ -60,6 +62,14 @@ namespace Renderer3D {
         FlashlightDirections _ufosFlashlightDirection = {0.0f, 0.0f};
         CameraType _cameraType = CameraType::MOVING;
         size_t _selectedUfoIndex = 0;
+        bool _canAddPointLight = true;
+        // Consts
+        static constexpr float MIN_X = -15.0f;
+        static constexpr float MAX_X = 15.0f;
+        static constexpr float MIN_Y = 0.0f;
+        static constexpr float MAX_Y = 4.0f;
+        static constexpr float MIN_Z = -15.0f;
+        static constexpr float MAX_Z = 15.0f;
     };
 
 } // Renderer3D

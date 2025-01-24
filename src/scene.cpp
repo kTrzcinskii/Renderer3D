@@ -4,6 +4,8 @@
 
 #include <utility>
 #include <spdlog/spdlog.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "scene.h"
 
@@ -32,6 +34,11 @@ namespace Renderer3D {
     void Scene::UpdatePointLightContainer(std::unique_ptr<PointLightsContainer> pointLightsContainer)
     {
         _pointLightsContainer = std::move(pointLightsContainer);
+    }
+
+    const std::unique_ptr<PointLightsContainer>& Scene::GetPointLightContainer() const
+    {
+        return _pointLightsContainer;
     }
 
     void Scene::UpdateNightSkybox(std::unique_ptr<Skybox> skybox)

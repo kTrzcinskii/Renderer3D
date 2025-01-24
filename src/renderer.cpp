@@ -5,13 +5,11 @@
 #include <spdlog/spdlog.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb_image/stb_image.h>
 
 #include "renderer.h"
 
 #include "entity.h"
 #include "shader.h"
-#include "point_light_source.h"
 
 namespace Renderer3D {
     Renderer::Renderer() : _window(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _deferredShader(Renderer::INITIAL_WIDTH, Renderer::INITIAL_HEIGHT), _scene(std::make_unique<Scene>(Scene()))
@@ -26,7 +24,6 @@ namespace Renderer3D {
         _controls = std::make_unique<Controls>(_window);
 
         // Setup scene
-        GeneratePointLightsForScene();
         SetupModelsForScene();
         SetupSkyboxesForScene();
         SetupCameras();
@@ -100,7 +97,7 @@ namespace Renderer3D {
             _window.PollEvents();
 
             // Draw controls
-            _controls->Draw();
+            _controls->Draw(_scene->GetPointLightContainer());
 
             _window.SwapBuffers();
         }
@@ -312,27 +309,6 @@ namespace Renderer3D {
             return;
         }
         renderer->ProcessKeyCallback(key, action);
-    }
-
-    void Renderer::GeneratePointLightsForScene() const
-    {
-        std::vector<PointLightSource> pointLightSources;
-        srand(time(nullptr));
-        for (unsigned int i = 0; i < Renderer::POINTS_LIGHTS_COUNT; i++)
-        {
-            // Random offsets
-            const auto xPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 15.0);
-            const auto yPos = static_cast<float>(rand() % 100 / 100.0 * 5.0 + 0.1);
-            const auto zPos = static_cast<float>(rand() % 100 / 100.0 * 30.0 - 15.0);
-            const auto position = glm::vec3(xPos, yPos, zPos);
-            // Random color
-            const auto rColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
-            const auto gColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
-            const auto bColor = static_cast<float>(rand() % 100 / 200.0f + 0.5); // between 0.5 and 1.)
-            const auto color = glm::vec3(rColor, gColor, bColor);
-            pointLightSources.emplace_back(position, color);
-        }
-        _scene->UpdatePointLightContainer(std::make_unique<PointLightsContainer>(PointLightsContainer(pointLightSources)));
     }
 
     void Renderer::SetupModelsForScene()
