@@ -341,6 +341,12 @@ namespace Renderer3D {
         _modelsManager->AddModel("cottage", std::make_shared<Model>("../assets/models/cottage/Cottage_FREE.obj"));
         _modelsManager->AddModel("farmHouse", std::make_shared<Model>("../assets/models/farm_house/farmhouse_obj.obj"));
         _modelsManager->AddModel("spaceship", std::make_shared<Model>("../assets/models/spaceship/Intergalactic_Spaceship-(Wavefront).obj"));
+        _modelsManager->AddModel("alienAnimal", std::make_shared<Model>("../assets/models/alien_animal/Alien Animal.obj"));
+
+        Entity alienAnimal(_modelsManager->GetModel("alienAnimal"));
+        alienAnimal.UpdatePosition(glm::vec3(0.0f, 0.0f, -10.0f));
+        alienAnimal.UpdateScale(glm::vec3(0.2f, 0.2f, 0.2f));
+        _scene->AddEntity("alienAnimal", alienAnimal);
 
         Entity ufo1(_modelsManager->GetModel("ufo"));
         ufo1.UpdatePosition(glm::vec3(5.0f, 7.5f, 4.0f));
